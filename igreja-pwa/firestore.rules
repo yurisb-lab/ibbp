@@ -18,7 +18,7 @@ service cloud.firestore {
     }
 
     function isLeader() {
-      return isAuthed() && getRole() in ['lider', 'admin'];
+      return isAuthed() && getRole() in ['lider', 'admin', 'secretario'];
     }
 
     function isAdmin() {
