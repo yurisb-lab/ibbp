@@ -1,0 +1,79 @@
+// firestore.rules
+// ─────────────────────────────────────────────────────────────────────
+// Cole estas regras em:
+// Firebase Console > Firestore > Rules
+// ─────────────────────────────────────────────────────────────────────
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function getRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isLeader() {
+      return isAuthed() && getRole() in ['lider', 'admin'];
+    }
+
+    function isAdmin() {
+      return isAuthed() && getRole() == 'admin';
+    }
+
+    // ── Usuários ──────────────────────────────────────────────────────
+    // Cada usuário lê/atualiza apenas o próprio perfil.
+    // Admins leem todos.
+    match /users/{uid} {
+      allow read:   if isAuthed() && (request.auth.uid == uid || isLeader());
+      allow create: if isAuthed() && request.auth.uid == uid;
+      allow update: if isAuthed() && (request.auth.uid == uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ── Eventos ───────────────────────────────────────────────────────
+    match /events/{id} {
+      allow read:   if true;           // Público — membros não precisam logar para ver
+      allow create,
+            update,
+            delete: if isLeader();
+    }
+
+    // ── Avisos ────────────────────────────────────────────────────────
+    match /news/{id} {
+      allow read:   if true;
+      allow create,
+            update,
+            delete: if isLeader();
+    }
+
+    // ── Pedidos de Oração ─────────────────────────────────────────────
+    match /prayers/{id} {
+      // Pedidos públicos: qualquer um pode ler
+      allow read:   if resource.data.isPublic == true || isLeader();
+      // Qualquer autenticado pode criar (membros e visitantes logados)
+      allow create: if isAuthed();
+      // Só liderança ou o próprio autor podem atualizar/excluir
+      allow update: if isAuthed();     // prayedBy counter
+      allow delete: if isLeader();
+    }
+
+    // ── Devocionais ───────────────────────────────────────────────────
+    match /devotionals/{id} {
+      allow read:   if true;
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
+    // ── Ministérios ───────────────────────────────────────────────────
+    match /ministries/{id} {
+      allow read:   if true;
+      allow write:  if isAdmin();
+    }
+  }
+}

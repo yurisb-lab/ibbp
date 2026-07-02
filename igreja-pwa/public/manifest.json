@@ -1,0 +1,29 @@
+{
+  "short_name": "IBB Pacatuba",
+  "name": "Igreja Bíblica Batista de Pacatuba",
+  "description": "App oficial da Igreja Bíblica Batista de Pacatuba — Calendário, Bíblia, Oração e muito mais.",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#6B0F0F",
+  "background_color": "#FAF6F0",
+  "categories": [
+    "lifestyle",
+    "social"
+  ],
+  "lang": "pt-BR"
+}
