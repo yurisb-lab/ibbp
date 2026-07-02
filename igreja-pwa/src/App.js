@@ -852,53 +852,6 @@ function ProfileScreen({ userProfile:p, show, onNavigate, isLeader, isAdmin, onL
   );
 }
 
-/* ── Members Screen ───────────────────────────────────────── */
-function MembersScreen({ members, updateMemberRole, setMembers, show }) {
-  const [search,setSearch]=useState("");
-  const stats=[{label:"Total",value:members.length},{label:"Líderes",value:members.filter(u=>u.role==="lider"||u.role==="admin").length},{label:"Ministérios",value:seedMinistries.length}];
-  const filtered=members.filter(u=>u.name?.toLowerCase().includes(search.toLowerCase()));
-  const changeRole=async(uid,role)=>{
-    await updateMemberRole(uid,role);
-    setMembers(prev=>prev.map(m=>m.uid===uid?{...m,role}:m));
-    show("Perfil atualizado!");
-  };
-  return (
-    <div style={{padding:"18px 18px 0"}}>
-      <PageTitle title="Área de Liderança" subtitle="Visão geral dos membros e da igreja"/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:20}}>
-        {stats.map(s=>(
-          <div key={s.label} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:"14px 8px",textAlign:"center"}}>
-            <div className="serif" style={{fontSize:22,fontWeight:700,color:C.navy}}>{s.value}</div>
-            <div style={{fontSize:10,color:`${C.ink}88`,marginTop:2,lineHeight:1.3}}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{position:"relative",marginBottom:14}}>
-        <Search size={16} color={`${C.ink}66`} style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}/>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar membro..." style={{width:"100%",padding:"12px 12px 12px 36px",borderRadius:10,border:`1.5px solid ${C.ivoryDeep}`,fontSize:14}}/>
-      </div>
-      <div style={{display:"flex",flexDirection:"column",gap:8,paddingBottom:24}}>
-        {filtered.map(u=>(
-          <div key={u.uid} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:13,display:"flex",alignItems:"center",gap:12}}>
-            <div style={{width:38,height:38,borderRadius:19,background:`${roleColor(u.role)}18`,display:"flex",alignItems:"center",justifyContent:"center",color:roleColor(u.role),fontWeight:700,fontSize:13,flexShrink:0}} className="serif">
-              {u.name?.split(" ")[0][0]}{u.name?.split(" ")[1]?.[0]||""}
-            </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontWeight:700,fontSize:13.5,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.name}</div>
-              <div style={{fontSize:11.5,color:`${C.ink}88`}}>{u.email}</div>
-            </div>
-            <select value={u.role} onChange={e=>changeRole(u.uid,e.target.value)} style={{fontSize:11,fontWeight:700,color:roleColor(u.role),background:`${roleColor(u.role)}15`,border:`1px solid ${roleColor(u.role)}44`,borderRadius:8,padding:"4px 6px"}}>
-              <option value="membro">Membro</option>
-              <option value="lider">Líder</option>
-              <option value="admin">Pastor/Admin</option>
-            </select>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ── More Screen ──────────────────────────────────────────── */
 function MoreScreen({ onNavigate, currentUser, isLeader }) {
   const items=[
@@ -938,4 +891,5 @@ function MoreScreen({ onNavigate, currentUser, isLeader }) {
     </div>
   );
 }
+
 
