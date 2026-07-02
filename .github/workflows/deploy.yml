@@ -1,4 +1,4 @@
-﻿name: Deploy — IBB Pacatuba
+﻿name: Deploy IBB Pacatuba
 
 on:
   push:
@@ -7,15 +7,12 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build e Deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do repositorio
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configurar Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
@@ -25,7 +22,7 @@ jobs:
         run: npm ci
         working-directory: igreja-pwa
 
-      - name: Build de producao
+      - name: Build
         env:
           REACT_APP_FIREBASE_API_KEY: ${{ secrets.REACT_APP_FIREBASE_API_KEY }}
           REACT_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.REACT_APP_FIREBASE_AUTH_DOMAIN }}
@@ -33,14 +30,10 @@ jobs:
           REACT_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.REACT_APP_FIREBASE_STORAGE_BUCKET }}
           REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.REACT_APP_FIREBASE_MESSAGING_SENDER_ID }}
           REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
+          DISABLE_ESLINT_PLUGIN: true
         run: npm run build
         working-directory: igreja-pwa
 
-      - name: Deploy no Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_TOKEN }}
-          channelId: live
-          projectId: siteibbp
-          entryPoint: igreja-pwa
+      - name: Deploy Firebase
+        run: npx firebase-tools@latest deploy --only hosting --project siteibbp --token "${{ secrets.FIREBASE_TOKEN }}"
+        working-directory: igreja-pwa
