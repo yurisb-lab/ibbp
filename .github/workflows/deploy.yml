@@ -1,0 +1,68 @@
+# .github/workflows/deploy.yml
+# ─────────────────────────────────────────────────────────────────────
+# Deploy automático no Firebase Hosting ao fazer push na branch main.
+#
+# CONFIGURAÇÃO NECESSÁRIA (uma vez só):
+#
+# 1. Instale Firebase CLI localmente:
+#      npm install -g firebase-tools
+#
+# 2. Gere o token de deploy:
+#      firebase login:ci
+#    Copie o token gerado.
+#
+# 3. No GitHub, vá em:
+#      Repositório > Settings > Secrets and variables > Actions
+#    E adicione os seguintes secrets:
+#
+#      FIREBASE_TOKEN              ← token gerado acima
+#      REACT_APP_FIREBASE_API_KEY
+#      REACT_APP_FIREBASE_AUTH_DOMAIN
+#      REACT_APP_FIREBASE_PROJECT_ID
+#      REACT_APP_FIREBASE_STORAGE_BUCKET
+#      REACT_APP_FIREBASE_MESSAGING_SENDER_ID
+#      REACT_APP_FIREBASE_APP_ID
+# ─────────────────────────────────────────────────────────────────────
+
+name: Deploy — IBB Pacatuba
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Build e Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build de produção
+        env:
+          REACT_APP_FIREBASE_API_KEY:            ${{ secrets.REACT_APP_FIREBASE_API_KEY }}
+          REACT_APP_FIREBASE_AUTH_DOMAIN:        ${{ secrets.REACT_APP_FIREBASE_AUTH_DOMAIN }}
+          REACT_APP_FIREBASE_PROJECT_ID:         ${{ secrets.REACT_APP_FIREBASE_PROJECT_ID }}
+          REACT_APP_FIREBASE_STORAGE_BUCKET:     ${{ secrets.REACT_APP_FIREBASE_STORAGE_BUCKET }}
+          REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.REACT_APP_FIREBASE_MESSAGING_SENDER_ID }}
+          REACT_APP_FIREBASE_APP_ID:             ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
+        run: npm run build
+
+      - name: Deploy no Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken:        ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_TOKEN }}
+          channelId:        live
+          projectId:        ${{ secrets.REACT_APP_FIREBASE_PROJECT_ID }}
