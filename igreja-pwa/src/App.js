@@ -1,4 +1,4 @@
-// src/App.js
+﻿// src/App.js
 import React, { useState, useEffect } from "react";
 import {
   Home, Calendar, BookOpen, Image as ImageIcon, Users, Heart,
@@ -990,3 +990,4 @@ function MoreScreen({ onNavigate, currentUser, isLeader, canMembers, hasDashboar
     </div>
   );
 }
+
