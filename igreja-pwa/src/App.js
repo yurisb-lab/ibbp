@@ -1,4 +1,4 @@
-﻿// src/App.js
+// src/App.js
 import React, { useState, useEffect } from "react";
 import {
   Home, Calendar, BookOpen, Image as ImageIcon, Users, Heart,
@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "./contexts/AuthContext";
 import BibleScreen from "./pages/BibleScreen";
+import { roleLabel, roleColor } from "./services/permissions";
 import MembersScreen from "./pages/MembersScreen";
 import { loginUser, logoutUser, registerUser } from "./services/authService";
 import {
@@ -126,7 +127,12 @@ const bibleBooks = [
    APP ROOT
 ════════════════════════════════════════════════════════════ */
 export default function App() {
-  const { currentUser, userProfile, isLeader, isAdmin } = useAuth();
+  const {
+    currentUser, userProfile, role,
+    isAdmin, isLeader, canManageContent: canEdit,
+    canViewMembers, canViewDashboard: hasDashboard,
+    canManageMembers: canMembers
+  } = useAuth();
   const { show, Toast } = useToast();
   const [tab, setTab]         = useState("inicio");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -178,10 +184,10 @@ export default function App() {
       <main style={{flex:1,paddingBottom:86,overflowX:"hidden"}}>
         {tab==="auth"       && !currentUser && <AuthScreen show={show} onSuccess={()=>setTab("inicio")}/>}
         {tab==="inicio"     && <HomeScreen events={events} news={news} currentUser={userProfile} onNavigate={setTab}/>}
-        {tab==="calendario" && <CalendarScreen events={events} setEvents={setEvents} isLeader={isLeader} show={show} addEvent={addEvent} deleteEvent={deleteEvent}/>}
+        {tab==="calendario" && <CalendarScreen events={events} setEvents={setEvents} isLeader={canEdit} show={show} addEvent={addEvent} deleteEvent={deleteEvent}/>}
         {tab==="biblia"     && <BibleScreen />}
         {tab==="oracao"     && <PrayerScreen prayers={prayers} setPrayers={setPrayers} userProfile={userProfile} show={show} addPrayer={addPrayer} incrementPrayed={incrementPrayed}/>}
-        {tab==="avisos"     && <NewsScreen news={news} setNews={setNews} isLeader={isLeader} userProfile={userProfile} show={show} addNews={addNews} togglePinNews={togglePinNews} deleteNews={deleteNews}/>}
+        {tab==="avisos"     && <NewsScreen news={news} setNews={setNews} isLeader={canEdit} userProfile={userProfile} show={show} addNews={addNews} togglePinNews={togglePinNews} deleteNews={deleteNews}/>}
         {tab==="devocional" && <DevotionalScreen devotional={devotional}/>}
         {tab==="fotos"      && <PhotosScreen/>}
         {tab==="historia"   && <HistoryScreen/>}
@@ -189,8 +195,8 @@ export default function App() {
         {tab==="transmissao"&& <LiveScreen/>}
         {tab==="doacoes"    && <DonationsScreen show={show}/>}
         {tab==="perfil"     && currentUser && <ProfileScreen userProfile={userProfile} show={show} onNavigate={setTab} isLeader={isLeader} isAdmin={isAdmin} onLogout={async()=>{await logoutUser();setTab("inicio");show("Sessão encerrada.");}}/>}
-        {tab==="membros"    && isLeader && <MembersScreen userProfile={userProfile}/>}
-        {tab==="mais"       && <MoreScreen onNavigate={setTab} currentUser={currentUser} isLeader={isLeader}/>}
+        {tab==="membros"    && canViewMembers && <MembersScreen userProfile={userProfile}/>}
+        {tab==="mais"       && <MoreScreen onNavigate={setTab} currentUser={currentUser} isLeader={isLeader} canMembers={canViewMembers} hasDashboard={hasDashboard}/>}
       </main>
 
       {/* ── Bottom Nav ── */}
@@ -214,7 +220,7 @@ export default function App() {
       </nav>
 
       {/* ── Side Menu ── */}
-      {menuOpen && <SideMenu userProfile={userProfile} onClose={()=>setMenuOpen(false)} onNavigate={t=>{setTab(t);setMenuOpen(false);}} isLeader={isLeader} currentUser={currentUser} onLogout={async()=>{await logoutUser();setTab("inicio");setMenuOpen(false);show("Sessão encerrada.");}}/>}
+      {menuOpen && <SideMenu userProfile={userProfile} onClose={()=>setMenuOpen(false)} onNavigate={t=>{setTab(t);setMenuOpen(false);}} isLeader={isLeader} canMembers={canViewMembers} hasDashboard={hasDashboard} currentUser={currentUser} onLogout={async()=>{await logoutUser();setTab("inicio");setMenuOpen(false);show("Sessão encerrada.");}}/>}
 
       {Toast}
     </div>
@@ -247,7 +253,8 @@ function Header({ onMenu, onProfile, userProfile }) {
 }
 
 /* ── Side Menu ────────────────────────────────────────────── */
-function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, onLogout }) {
+function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, canMembers, hasDashboard, onLogout }) {
+  const role = userProfile?.role || "membro";
   const items = [
     {key:"inicio",label:"Início",icon:Home},
     {key:"calendario",label:"Calendário",icon:Calendar},
@@ -258,9 +265,9 @@ function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, onL
     {key:"ministerios",label:"Ministérios",icon:Users},
     {key:"fotos",label:"Galeria de Fotos",icon:ImageIcon},
     {key:"historia",label:"Nossa História",icon:History},
-    {key:"transmissao",label:"Transmissão ao Vivo",icon:Radio},
     {key:"doacoes",label:"Dízimos e Ofertas",icon:DollarSign},
-    ...(isLeader?[{key:"membros",label:"Área de Liderança",icon:Shield}]:[]),
+    ...(canMembers?[{key:"membros",label:"Lista de Membros",icon:Users}]:[]),
+    ...(hasDashboard?[{key:"dashboard",label:"Dashboard Admin",icon:Shield}]:[]),
   ];
   return (
     <div style={{position:"fixed",inset:0,zIndex:200,display:"flex"}}>
@@ -554,6 +561,51 @@ function CalendarScreen({ events, setEvents, isLeader, show, addEvent:fbAdd, del
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ── Bible Screen ─────────────────────────────────────────── */
+function BibleScreen() {
+  const [search,setSearch]=useState("");
+  const [selected,setSelected]=useState(null);
+  const filtered=bibleBooks.filter(b=>b.toLowerCase().includes(search.toLowerCase()));
+  return (
+    <div style={{padding:"18px 18px 0"}}>
+      <PageTitle title="Bíblia Sagrada" subtitle="Almeida Revista e Corrigida"/>
+      <div style={{position:"relative",marginBottom:18}}>
+        <Search size={16} color={`${C.ink}66`} style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}/>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar livro..." style={{width:"100%",padding:"12px 12px 12px 36px",borderRadius:10,border:`1.5px solid ${C.ivoryDeep}`,fontSize:14}}/>
+      </div>
+      {selected ? (
+        <div>
+          <button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:C.navyLight,fontSize:13,fontWeight:600,display:"flex",alignItems:"center",gap:4,marginBottom:14,padding:0}}><ChevronLeft size={16}/>Voltar</button>
+          <div style={{background:C.navy,borderRadius:14,padding:22,position:"relative",overflow:"hidden",marginBottom:20}}>
+            <Vitral opacity={0.06} id="vt-vs"/>
+            <div style={{position:"relative"}}><Quote size={22} color={C.gold}/>
+              <div className="serif" style={{color:C.ivory,fontSize:17,lineHeight:1.7,margin:"10px 0"}}>{sampleVerses[selected]}</div>
+              <div style={{color:C.gold,fontWeight:700,fontSize:13.5}}>{selected}</div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <SectionHeader title="Versículos em Destaque"/>
+          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:24}}>
+            {Object.entries(sampleVerses).map(([ref,text])=>(
+              <button key={ref} onClick={()=>setSelected(ref)} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:10,padding:14,textAlign:"left",display:"flex",flexDirection:"column",gap:4}}>
+                <span style={{fontWeight:700,color:C.terracotta,fontSize:13}}>{ref}</span>
+                <span style={{fontSize:12.5,color:`${C.ink}88`,lineHeight:1.4,overflow:"hidden",textOverflow:"ellipsis",display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical"}}>{text}</span>
+              </button>
+            ))}
+          </div>
+          <SectionHeader title="Livros da Bíblia"/>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,paddingBottom:24}}>
+            {filtered.map(b=><div key={b} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:9,padding:"11px 13px",fontSize:13,fontWeight:600,color:C.ink}}>{b}</div>)}
+            {filtered.length===0 && <div style={{gridColumn:"1/-1",textAlign:"center",fontSize:13,color:`${C.ink}77`,padding:"20px 0"}}>Nenhum livro encontrado.</div>}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -852,18 +904,65 @@ function ProfileScreen({ userProfile:p, show, onNavigate, isLeader, isAdmin, onL
   );
 }
 
+/* ── Members Screen ───────────────────────────────────────── */
+function MembersScreen({ members, updateMemberRole, setMembers, show }) {
+  const [search,setSearch]=useState("");
+  const stats=[{label:"Total",value:members.length},{label:"Líderes",value:members.filter(u=>u.role==="lider"||u.role==="admin").length},{label:"Ministérios",value:seedMinistries.length}];
+  const filtered=members.filter(u=>u.name?.toLowerCase().includes(search.toLowerCase()));
+  const changeRole=async(uid,role)=>{
+    await updateMemberRole(uid,role);
+    setMembers(prev=>prev.map(m=>m.uid===uid?{...m,role}:m));
+    show("Perfil atualizado!");
+  };
+  return (
+    <div style={{padding:"18px 18px 0"}}>
+      <PageTitle title="Área de Liderança" subtitle="Visão geral dos membros e da igreja"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:20}}>
+        {stats.map(s=>(
+          <div key={s.label} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:"14px 8px",textAlign:"center"}}>
+            <div className="serif" style={{fontSize:22,fontWeight:700,color:C.navy}}>{s.value}</div>
+            <div style={{fontSize:10,color:`${C.ink}88`,marginTop:2,lineHeight:1.3}}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{position:"relative",marginBottom:14}}>
+        <Search size={16} color={`${C.ink}66`} style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}/>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar membro..." style={{width:"100%",padding:"12px 12px 12px 36px",borderRadius:10,border:`1.5px solid ${C.ivoryDeep}`,fontSize:14}}/>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:8,paddingBottom:24}}>
+        {filtered.map(u=>(
+          <div key={u.uid} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:13,display:"flex",alignItems:"center",gap:12}}>
+            <div style={{width:38,height:38,borderRadius:19,background:`${roleColor(u.role)}18`,display:"flex",alignItems:"center",justifyContent:"center",color:roleColor(u.role),fontWeight:700,fontSize:13,flexShrink:0}} className="serif">
+              {u.name?.split(" ")[0][0]}{u.name?.split(" ")[1]?.[0]||""}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:700,fontSize:13.5,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.name}</div>
+              <div style={{fontSize:11.5,color:`${C.ink}88`}}>{u.email}</div>
+            </div>
+            <select value={u.role} onChange={e=>changeRole(u.uid,e.target.value)} style={{fontSize:11,fontWeight:700,color:roleColor(u.role),background:`${roleColor(u.role)}15`,border:`1px solid ${roleColor(u.role)}44`,borderRadius:8,padding:"4px 6px"}}>
+              <option value="membro">Membro</option>
+              <option value="lider">Líder</option>
+              <option value="admin">Pastor/Admin</option>
+            </select>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── More Screen ──────────────────────────────────────────── */
-function MoreScreen({ onNavigate, currentUser, isLeader }) {
+function MoreScreen({ onNavigate, currentUser, isLeader, canMembers, hasDashboard }) {
   const items=[
     {icon:Star,label:"Devocional Diário",tab:"devocional",desc:"Reflexão diária da Palavra"},
     {icon:Bell,label:"Avisos e Mural",tab:"avisos",desc:"Notícias e comunicados"},
     {icon:Users,label:"Ministérios",tab:"ministerios",desc:"Conheça e participe"},
     {icon:ImageIcon,label:"Galeria de Fotos",tab:"fotos",desc:"Álbuns de eventos"},
     {icon:History,label:"Nossa História",tab:"historia",desc:"Desde 1978"},
-    {icon:Radio,label:"Transmissão ao Vivo",tab:"transmissao",desc:"Cultos online"},
     {icon:DollarSign,label:"Dízimos e Ofertas",tab:"doacoes",desc:"Contribua com a igreja"},
     ...(currentUser?[{icon:User,label:"Meu Perfil",tab:"perfil",desc:"Seus dados e conta"}]:[]),
-    ...(isLeader?[{icon:Shield,label:"Área de Liderança",tab:"membros",desc:"Gestão de membros"}]:[]),
+    ...(canMembers?[{icon:Users,label:"Lista de Membros",tab:"membros",desc:"Cadastro e gestão"}]:[]),
+    ...(hasDashboard?[{icon:Shield,label:"Dashboard Admin",tab:"dashboard",desc:"Painel administrativo"}]:[]),
   ];
   return (
     <div style={{padding:"18px 18px 0"}}>
@@ -891,5 +990,3 @@ function MoreScreen({ onNavigate, currentUser, isLeader }) {
     </div>
   );
 }
-
-

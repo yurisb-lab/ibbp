@@ -1,14 +1,7 @@
-// firestore.rules
-// ─────────────────────────────────────────────────────────────────────
-// Cole estas regras em:
-// Firebase Console > Firestore > Rules
-// ─────────────────────────────────────────────────────────────────────
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Helpers ──────────────────────────────────────────────────────
     function isAuthed() {
       return request.auth != null;
     }
@@ -17,63 +10,96 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
-    function isLeader() {
-      return isAuthed() && getRole() in ['lider', 'admin', 'secretario'];
+    // Pode gerenciar conteúdo (eventos, avisos)
+    function canManageContent() {
+      return isAuthed() && getRole() in ['admin','lider','secretario','vice_secretario'];
     }
 
+    // Pode gerenciar membros
+    function canManageMembers() {
+      return isAuthed() && getRole() in ['admin','secretario','vice_secretario'];
+    }
+
+    // Pode ver lista de membros
+    function canViewMembers() {
+      return isAuthed() && getRole() in ['admin','secretario','vice_secretario','lider','lider_ministerio','tesoureiro','vice_tesoureiro'];
+    }
+
+    // Dashboard / relatórios
+    function canAccessDashboard() {
+      return isAuthed() && getRole() in ['admin','secretario','vice_secretario','tesoureiro','vice_tesoureiro'];
+    }
+
+    // Só admin muda roles
     function isAdmin() {
       return isAuthed() && getRole() == 'admin';
     }
 
-    // ── Usuários ──────────────────────────────────────────────────────
-    // Cada usuário lê/atualiza apenas o próprio perfil.
-    // Admins leem todos.
+    // ── Usuários ──────────────────────────────────────────────
     match /users/{uid} {
-      allow read:   if isAuthed() && (request.auth.uid == uid || isLeader());
-      allow create: if isAuthed() && request.auth.uid == uid;
-      allow update: if isAuthed() && (request.auth.uid == uid || isAdmin());
+      allow read:   if isAuthed() && (request.auth.uid == uid || canViewMembers());
+      allow create: if isAuthed() && (request.auth.uid == uid || canManageMembers());
+      allow update: if isAuthed() && (
+        request.auth.uid == uid ||
+        canManageMembers() ||
+        // Impede membro de alterar o próprio role
+        (request.auth.uid == uid && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))
+      );
       allow delete: if isAdmin();
     }
 
-    // ── Eventos ───────────────────────────────────────────────────────
+    // ── Eventos ───────────────────────────────────────────────
     match /events/{id} {
-      allow read:   if true;           // Público — membros não precisam logar para ver
-      allow create,
-            update,
-            delete: if isLeader();
+      allow read:   if true;
+      allow write:  if canManageContent();
     }
 
-    // ── Avisos ────────────────────────────────────────────────────────
+    // ── Avisos ────────────────────────────────────────────────
     match /news/{id} {
       allow read:   if true;
-      allow create,
-            update,
-            delete: if isLeader();
+      allow write:  if canManageContent();
     }
 
-    // ── Pedidos de Oração ─────────────────────────────────────────────
+    // ── Pedidos de Oração ─────────────────────────────────────
     match /prayers/{id} {
-      // Pedidos públicos: qualquer um pode ler
-      allow read:   if resource.data.isPublic == true || isLeader();
-      // Qualquer autenticado pode criar (membros e visitantes logados)
+      allow read:   if resource.data.isPublic == true || canViewMembers();
       allow create: if isAuthed();
-      // Só liderança ou o próprio autor podem atualizar/excluir
-      allow update: if isAuthed();     // prayedBy counter
-      allow delete: if isLeader();
+      allow update: if isAuthed();
+      allow delete: if canManageContent();
     }
 
-    // ── Devocionais ───────────────────────────────────────────────────
+    // ── Devocionais ───────────────────────────────────────────
     match /devotionals/{id} {
       allow read:   if true;
-      allow create,
-            update,
-            delete: if isAdmin();
+      allow write:  if isAdmin();
     }
 
-    // ── Ministérios ───────────────────────────────────────────────────
+    // ── Ministérios ───────────────────────────────────────────
     match /ministries/{id} {
       allow read:   if true;
+      allow write:  if canManageContent();
+    }
+
+    // ── Fotos / Álbuns ────────────────────────────────────────
+    match /albums/{id} {
+      allow read:   if true;
+      allow write:  if canManageContent();
+    }
+    match /photos/{id} {
+      allow read:   if true;
+      allow write:  if canManageContent();
+    }
+
+    // ── Configurações da Igreja ───────────────────────────────
+    match /settings/{id} {
+      allow read:   if true;
       allow write:  if isAdmin();
+    }
+
+    // ── Financeiro (futuro) ───────────────────────────────────
+    match /finance/{id} {
+      allow read:   if canAccessDashboard();
+      allow write:  if isAuthed() && getRole() in ['admin','tesoureiro','vice_tesoureiro'];
     }
   }
 }

@@ -3,13 +3,18 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../services/firebase";
 import { fetchUserProfile } from "../services/authService";
+import {
+  isAdmin, canManageMembers, canManageEvents, canManageContent,
+  canViewDashboard, canViewMemberList, canManageFinance,
+  isLeaderOrAbove, canChangeRoles
+} from "../services/permissions";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser]   = useState(null);  // Firebase user
-  const [userProfile, setUserProfile]   = useState(null);  // Firestore profile (com role)
-  const [loading, setLoading]           = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading]         = useState(true);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -26,11 +31,25 @@ export function AuthProvider({ children }) {
     return unsub;
   }, []);
 
-  const isLeader = userProfile?.role === "lider" || userProfile?.role === "admin";
-  const isAdmin  = userProfile?.role === "admin";
+  const role = userProfile?.role || "membro";
 
   return (
-    <AuthContext.Provider value={{ currentUser, userProfile, loading, isLeader, isAdmin }}>
+    <AuthContext.Provider value={{
+      currentUser,
+      userProfile,
+      loading,
+      role,
+      // Permissões derivadas
+      isAdmin:          isAdmin(role),
+      isLeader:         isLeaderOrAbove(role),
+      canManageMembers: canManageMembers(role),
+      canManageEvents:  canManageEvents(role),
+      canManageContent: canManageContent(role),
+      canViewDashboard: canViewDashboard(role),
+      canViewMembers:   canViewMemberList(role),
+      canManageFinance: canManageFinance(role),
+      canChangeRoles:   canChangeRoles(role),
+    }}>
       {!loading && children}
     </AuthContext.Provider>
   );
