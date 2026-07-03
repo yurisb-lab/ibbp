@@ -568,51 +568,6 @@ function CalendarScreen({ events, setEvents, isLeader, show, addEvent:fbAdd, del
   );
 }
 
-/* ── Bible Screen ─────────────────────────────────────────── */
-function BibleScreen() {
-  const [search,setSearch]=useState("");
-  const [selected,setSelected]=useState(null);
-  const filtered=bibleBooks.filter(b=>b.toLowerCase().includes(search.toLowerCase()));
-  return (
-    <div style={{padding:"18px 18px 0"}}>
-      <PageTitle title="Bíblia Sagrada" subtitle="Almeida Revista e Corrigida"/>
-      <div style={{position:"relative",marginBottom:18}}>
-        <Search size={16} color={`${C.ink}66`} style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}/>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar livro..." style={{width:"100%",padding:"12px 12px 12px 36px",borderRadius:10,border:`1.5px solid ${C.ivoryDeep}`,fontSize:14}}/>
-      </div>
-      {selected ? (
-        <div>
-          <button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:C.navyLight,fontSize:13,fontWeight:600,display:"flex",alignItems:"center",gap:4,marginBottom:14,padding:0}}><ChevronLeft size={16}/>Voltar</button>
-          <div style={{background:C.navy,borderRadius:14,padding:22,position:"relative",overflow:"hidden",marginBottom:20}}>
-            <Vitral opacity={0.06} id="vt-vs"/>
-            <div style={{position:"relative"}}><Quote size={22} color={C.gold}/>
-              <div className="serif" style={{color:C.ivory,fontSize:17,lineHeight:1.7,margin:"10px 0"}}>{sampleVerses[selected]}</div>
-              <div style={{color:C.gold,fontWeight:700,fontSize:13.5}}>{selected}</div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <>
-          <SectionHeader title="Versículos em Destaque"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:24}}>
-            {Object.entries(sampleVerses).map(([ref,text])=>(
-              <button key={ref} onClick={()=>setSelected(ref)} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:10,padding:14,textAlign:"left",display:"flex",flexDirection:"column",gap:4}}>
-                <span style={{fontWeight:700,color:C.terracotta,fontSize:13}}>{ref}</span>
-                <span style={{fontSize:12.5,color:`${C.ink}88`,lineHeight:1.4,overflow:"hidden",textOverflow:"ellipsis",display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical"}}>{text}</span>
-              </button>
-            ))}
-          </div>
-          <SectionHeader title="Livros da Bíblia"/>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,paddingBottom:24}}>
-            {filtered.map(b=><div key={b} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:9,padding:"11px 13px",fontSize:13,fontWeight:600,color:C.ink}}>{b}</div>)}
-            {filtered.length===0 && <div style={{gridColumn:"1/-1",textAlign:"center",fontSize:13,color:`${C.ink}77`,padding:"20px 0"}}>Nenhum livro encontrado.</div>}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 /* ── Prayer Screen ────────────────────────────────────────── */
 function PrayerScreen({ prayers, setPrayers, userProfile, show, addPrayer:fbAdd, incrementPrayed:fbInc }) {
   const [showForm,setShowForm]=useState(false);
@@ -882,5 +837,6 @@ function MoreScreen({ onNavigate, currentUser, isLeader, canMembers, hasDashboar
     </div>
   );
 }
+
 
 
