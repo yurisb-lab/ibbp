@@ -1,4 +1,4 @@
-// src/App.js
+﻿// src/App.js
 import React, { useState, useEffect } from "react";
 import {
   Home, Calendar, BookOpen, Image as ImageIcon, Users, Heart,
@@ -784,45 +784,7 @@ function PhotosScreen() {
 }
 
 /* ── History Screen ───────────────────────────────────────── */
-function HistoryScreen() {
-  return (
-    <div style={{padding:"18px 18px 0"}}>
-      <PageTitle title="Nossa História" subtitle="A trajetória da Igreja Bíblica Batista de Pacatuba"/>
-      <div style={{position:"relative",paddingLeft:22,paddingBottom:24}}>
-        <div style={{position:"absolute",left:6,top:6,bottom:6,width:2,background:C.ivoryDeep}}/>
-        {churchHistory.map((h,i)=>(
-          <div key={i} style={{position:"relative",marginBottom:24}}>
-            <div style={{position:"absolute",left:-22,top:2,width:14,height:14,borderRadius:7,background:C.navy,border:`3px solid ${C.gold}`}}/>
-            <div className="serif" style={{color:C.terracotta,fontWeight:700,fontSize:17,marginBottom:4}}>{h.year}</div>
-            <p style={{fontSize:13.5,color:C.ink,lineHeight:1.6,margin:0}}>{h.text}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ── Ministries Screen ────────────────────────────────────── */
-function MinistriesScreen() {
-  return (
-    <div style={{padding:"18px 18px 0"}}>
-      <PageTitle title="Ministérios" subtitle="Sirva conosco em uma destas áreas"/>
-      <div style={{display:"flex",flexDirection:"column",gap:10,paddingBottom:24}}>
-        {seedMinistries.map(m=>(
-          <div key={m.id} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:16}}>
-            <div style={{fontWeight:700,fontSize:15,marginBottom:4,color:C.navy}}>{m.name}</div>
-            <p style={{fontSize:13,color:`${C.ink}99`,lineHeight:1.5,margin:"0 0 10px"}}>{m.description}</p>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:`${C.ink}88`,alignItems:"center"}}>
-              <span>Líder: <strong style={{color:C.ink}}>{m.leader}</strong></span>
-              <span style={{display:"flex",alignItems:"center",gap:4,color:C.terracotta,fontWeight:600}}><Mail size={12}/>{m.contact}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ── Live Screen ──────────────────────────────────────────── */
 function LiveScreen() {
   return (
@@ -848,33 +810,6 @@ function LiveScreen() {
 }
 
 /* ── Donations Screen ─────────────────────────────────────── */
-function DonationsScreen({ show }) {
-  const pixKey="12.345.678/0001-90";
-  const copy=()=>{navigator.clipboard?.writeText(pixKey).catch(()=>{});show("Chave PIX copiada!");};
-  return (
-    <div style={{padding:"18px 18px 0"}}>
-      <PageTitle title="Dízimos e Ofertas" subtitle={'\"Trazei todos os dízimos\" — Malaquias 3:10'}/>
-      <div style={{background:`linear-gradient(160deg,${C.navy},${C.navyMid})`,borderRadius:16,padding:22,position:"relative",overflow:"hidden",marginBottom:18}}>
-        <Vitral opacity={0.07} id="vt-don"/>
-        <div style={{position:"relative"}}>
-          <div style={{color:C.gold,fontSize:11.5,fontWeight:700,letterSpacing:1,marginBottom:8}}>CHAVE PIX (CNPJ)</div>
-          <div style={{color:C.ivory,fontSize:19,fontWeight:700,marginBottom:14,letterSpacing:.5}}>{pixKey}</div>
-          <button onClick={copy} style={{background:C.gold,color:C.navy,border:"none",borderRadius:9,padding:"11px 18px",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",gap:8}}><Copy size={15}/>Copiar chave PIX</button>
-        </div>
-      </div>
-      <div style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:16,marginBottom:14}}>
-        <div style={{fontWeight:700,fontSize:14,marginBottom:10}}>Dados bancários</div>
-        {[["Banco","Banco do Brasil"],["Agência","1234-5"],["Conta corrente","12345-6"],["Favorecido","Igreja Bíblica Batista de Pacatuba"]].map(([k,v])=>(
-          <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.ivoryDeep}`,fontSize:13}}>
-            <span style={{color:`${C.ink}88`}}>{k}</span><span style={{fontWeight:600}}>{v}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{fontSize:12,color:`${C.ink}77`,lineHeight:1.6,paddingBottom:24}}>Sua contribuição sustenta o trabalho da igreja, os ministérios e as ações sociais na comunidade de Pacatuba.</div>
-    </div>
-  );
-}
-
 /* ── Profile Screen ───────────────────────────────────────── */
 function ProfileScreen({ userProfile:p, show, onNavigate, isLeader, isAdmin, onLogout }) {
   if(!p)return null;
@@ -910,52 +845,6 @@ function ProfileScreen({ userProfile:p, show, onNavigate, isLeader, isAdmin, onL
 }
 
 /* ── Members Screen ───────────────────────────────────────── */
-function MembersScreen({ members, updateMemberRole, setMembers, show }) {
-  const [search,setSearch]=useState("");
-  const stats=[{label:"Total",value:members.length},{label:"Líderes",value:members.filter(u=>u.role==="lider"||u.role==="admin").length},{label:"Ministérios",value:seedMinistries.length}];
-  const filtered=members.filter(u=>u.name?.toLowerCase().includes(search.toLowerCase()));
-  const changeRole=async(uid,role)=>{
-    await updateMemberRole(uid,role);
-    setMembers(prev=>prev.map(m=>m.uid===uid?{...m,role}:m));
-    show("Perfil atualizado!");
-  };
-  return (
-    <div style={{padding:"18px 18px 0"}}>
-      <PageTitle title="Área de Liderança" subtitle="Visão geral dos membros e da igreja"/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:20}}>
-        {stats.map(s=>(
-          <div key={s.label} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:"14px 8px",textAlign:"center"}}>
-            <div className="serif" style={{fontSize:22,fontWeight:700,color:C.navy}}>{s.value}</div>
-            <div style={{fontSize:10,color:`${C.ink}88`,marginTop:2,lineHeight:1.3}}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{position:"relative",marginBottom:14}}>
-        <Search size={16} color={`${C.ink}66`} style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}/>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar membro..." style={{width:"100%",padding:"12px 12px 12px 36px",borderRadius:10,border:`1.5px solid ${C.ivoryDeep}`,fontSize:14}}/>
-      </div>
-      <div style={{display:"flex",flexDirection:"column",gap:8,paddingBottom:24}}>
-        {filtered.map(u=>(
-          <div key={u.uid} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:13,display:"flex",alignItems:"center",gap:12}}>
-            <div style={{width:38,height:38,borderRadius:19,background:`${roleColor(u.role)}18`,display:"flex",alignItems:"center",justifyContent:"center",color:roleColor(u.role),fontWeight:700,fontSize:13,flexShrink:0}} className="serif">
-              {u.name?.split(" ")[0][0]}{u.name?.split(" ")[1]?.[0]||""}
-            </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontWeight:700,fontSize:13.5,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.name}</div>
-              <div style={{fontSize:11.5,color:`${C.ink}88`}}>{u.email}</div>
-            </div>
-            <select value={u.role} onChange={e=>changeRole(u.uid,e.target.value)} style={{fontSize:11,fontWeight:700,color:roleColor(u.role),background:`${roleColor(u.role)}15`,border:`1px solid ${roleColor(u.role)}44`,borderRadius:8,padding:"4px 6px"}}>
-              <option value="membro">Membro</option>
-              <option value="lider">Líder</option>
-              <option value="admin">Pastor/Admin</option>
-            </select>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ── More Screen ──────────────────────────────────────────── */
 function MoreScreen({ onNavigate, currentUser, isLeader, canMembers, hasDashboard }) {
   const items=[
@@ -995,3 +884,5 @@ function MoreScreen({ onNavigate, currentUser, isLeader, canMembers, hasDashboar
     </div>
   );
 }
+
+
