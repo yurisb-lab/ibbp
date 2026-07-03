@@ -1,4 +1,4 @@
-﻿// src/App.js
+// src/App.js
 import React, { useState, useEffect } from "react";
 import {
   Home, Calendar, BookOpen, Image as ImageIcon, Users, Heart,
@@ -13,6 +13,7 @@ import DevotionalScreen from "./pages/DevotionalScreen";
 import { roleLabel, roleColor } from "./services/permissions";
 import MembersScreen from "./pages/MembersScreen";
 import DashboardScreen from "./pages/DashboardScreen";
+import DevotionalScreen from "./pages/DevotionalScreen";
 import HistoryScreen from "./pages/HistoryScreen";
 import MinistriesScreen from "./pages/MinistriesScreen";
 import DonationsScreen from "./pages/DonationsScreen";
