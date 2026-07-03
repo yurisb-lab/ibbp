@@ -48,8 +48,6 @@ function formatShort(val) {
   const d = new Date(iso + "T00:00:00");
   return d.toLocaleDateString("pt-BR", { day:"2-digit", month:"short" });
 }
-function roleLabel(r) { return {admin:"Pastor/Admin",lider:"Líder",membro:"Membro"}[r]||r; }
-function roleColor(r) { return {admin:C.terracotta,lider:C.gold,membro:C.navyLight}[r]||C.navyLight; }
 
 /* ── Toast ────────────────────────────────────────────────── */
 function useToast() {
