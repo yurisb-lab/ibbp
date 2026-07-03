@@ -11,6 +11,9 @@ import BibleScreen from "./pages/BibleScreen";
 import { roleLabel, roleColor } from "./services/permissions";
 import MembersScreen from "./pages/MembersScreen";
 import DashboardScreen from "./pages/DashboardScreen";
+import HistoryScreen from "./pages/HistoryScreen";
+import MinistriesScreen from "./pages/MinistriesScreen";
+import DonationsScreen from "./pages/DonationsScreen";
 import { loginUser, logoutUser, registerUser } from "./services/authService";
 import {
   getEvents, addEvent, deleteEvent,
@@ -191,10 +194,10 @@ export default function App() {
         {tab==="avisos"     && <NewsScreen news={news} setNews={setNews} isLeader={canEdit} userProfile={userProfile} show={show} addNews={addNews} togglePinNews={togglePinNews} deleteNews={deleteNews}/>}
         {tab==="devocional" && <DevotionalScreen devotional={devotional}/>}
         {tab==="fotos"      && <PhotosScreen/>}
-        {tab==="historia"   && <HistoryScreen/>}
-        {tab==="ministerios"&& <MinistriesScreen/>}
+        {tab==="historia"   && <HistoryScreen userProfile={userProfile}/>}
+        {tab==="ministerios"&& <MinistriesScreen userProfile={userProfile}/>}
         {tab==="transmissao"&& <LiveScreen/>}
-        {tab==="doacoes"    && <DonationsScreen show={show}/>}
+        {tab==="doacoes"    && <DonationsScreen userProfile={userProfile} show={show}/>}
         {tab==="perfil"     && currentUser && <ProfileScreen userProfile={userProfile} show={show} onNavigate={setTab} isLeader={isLeader} isAdmin={isAdmin} onLogout={async()=>{await logoutUser();setTab("inicio");show("Sessão encerrada.");}}/>}
         {tab==="membros"    && canViewMembers && <MembersScreen userProfile={userProfile}/>}
         {tab==="dashboard"   && hasDashboard && <DashboardScreen userProfile={userProfile} onNavigate={setTab}/>}
