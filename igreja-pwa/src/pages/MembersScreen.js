@@ -1,5 +1,7 @@
 // src/pages/MembersScreen.js
 import React, { useState, useEffect } from "react";
+import { ROLES, roleLabel as _roleLabel, roleColor as _roleColor,
+  canManageMembers, canChangeRoles } from "../services/permissions";
 import {
   Search, Plus, X, ChevronLeft, ChevronRight, User, Mail, Phone,
   MapPin, Calendar, Heart, BookOpen, FileText, Download, Filter,
@@ -37,13 +39,6 @@ function Vitral({ opacity = 0.07, id = "vt" }) {
   );
 }
 
-const ROLES = [
-  { key: "membro",      label: "Membro" },
-  { key: "secretario",  label: "Secretário" },
-  { key: "lider",       label: "Líder" },
-  { key: "admin",       label: "Pastor/Admin" },
-];
-
 const ESTADO_CIVIL = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União estável"];
 const MINISTERIOS_LIST = [
   "Louvor e Adoração", "Ministério Jovem", "Ação Social", "Ministério Infantil",
@@ -51,12 +46,6 @@ const MINISTERIOS_LIST = [
   "Intercessão", "Mídia e Comunicação"
 ];
 
-function roleColor(role) {
-  return { admin: C.navy, lider: "#8B6914", secretario: C.green, membro: C.gray }[role] || C.gray;
-}
-function roleLabel(role) {
-  return ROLES.find(r => r.key === role)?.label || role;
-}
 function statusColor(active) { return active ? C.green : C.gray; }
 
 // ── Exportar CSV ─────────────────────────────────────────────
@@ -67,7 +56,7 @@ function exportCSV(members) {
   ];
   const rows = members.map(m => [
     m.name || "", m.email || "", m.phone || "",
-    roleLabel(m.role), m.active !== false ? "Ativo" : "Inativo",
+    _roleLabel(m.role), m.active !== false ? "Ativo" : "Inativo",
     m.joinedAt ? formatDate(m.joinedAt) : "",
     m.birthDate || "", m.maritalStatus || "", m.address || "",
     m.baptismDate || "", (m.ministries || []).join("; "), m.notes || ""
@@ -118,7 +107,7 @@ function exportPDF(members) {
       <td><strong>${m.name||""}</strong></td>
       <td>${m.phone||""}</td>
       <td>${m.email||""}</td>
-      <td>${roleLabel(m.role)}</td>
+      <td>${_roleLabel(m.role)}</td>
       <td>${(m.ministries||[]).join(", ")||"—"}</td>
       <td>${m.joinedAt?formatDate(m.joinedAt):"—"}</td>
     </tr>`).join("")}
@@ -130,7 +119,7 @@ function exportPDF(members) {
     </tr></thead><tbody>
     ${inactive.map(m=>`<tr>
       <td>${m.name||""}</td><td>${m.phone||""}</td>
-      <td>${m.email||""}</td><td>${roleLabel(m.role)}</td>
+      <td>${m.email||""}</td><td>${_roleLabel(m.role)}</td>
     </tr>`).join("")}
     </tbody></table>` : ""}
     </body></html>`;
@@ -171,7 +160,7 @@ export default function MembersScreen({ userProfile }) {
   const [toast, setToast]         = useState("");
 
   const isAdmin = userProfile?.role === "admin";
-  const canEdit = userProfile?.role === "admin" || userProfile?.role === "secretario";
+  const canEdit = canManageMembers(userProfile?.role);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2800); };
 
@@ -338,13 +327,13 @@ export default function MembersScreen({ userProfile }) {
               {/* Avatar */}
               <div style={{
                 width: 44, height: 44, borderRadius: 22, flexShrink: 0,
-                background: m.photoURL ? "transparent" : `${roleColor(m.role)}18`,
-                border: `2px solid ${roleColor(m.role)}44`,
+                background: m.photoURL ? "transparent" : `${_roleColor(m.role)}18`,
+                border: `2px solid ${_roleColor(m.role)}44`,
                 display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden"
               }}>
                 {m.photoURL
                   ? <img src={m.photoURL} alt={m.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  : <span className="serif" style={{ color: roleColor(m.role), fontWeight: 700, fontSize: 15 }}>
+                  : <span className="serif" style={{ color: _roleColor(m.role), fontWeight: 700, fontSize: 15 }}>
                       {m.name?.split(" ")[0]?.[0]}{m.name?.split(" ")[1]?.[0]||""}
                     </span>}
               </div>
@@ -357,9 +346,9 @@ export default function MembersScreen({ userProfile }) {
               </div>
               <div style={{ flexShrink: 0, textAlign: "right" }}>
                 <span style={{
-                  fontSize: 10, fontWeight: 700, color: roleColor(m.role),
-                  background: `${roleColor(m.role)}15`, padding: "3px 8px", borderRadius: 10, display: "block", marginBottom: 3
-                }}>{roleLabel(m.role)}</span>
+                  fontSize: 10, fontWeight: 700, color: _roleColor(m.role),
+                  background: `${_roleColor(m.role)}15`, padding: "3px 8px", borderRadius: 10, display: "block", marginBottom: 3
+                }}>{_roleLabel(m.role)}</span>
                 <span style={{ fontSize: 10, color: statusColor(m.active !== false), fontWeight: 600 }}>
                   {m.active !== false ? "● Ativo" : "○ Inativo"}
                 </span>
@@ -395,7 +384,7 @@ export default function MembersScreen({ userProfile }) {
             <div style={{ color: "#fff", fontWeight: 700, fontSize: 17 }}>{selected.name}</div>
             <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: C.navy, background: C.gold, padding: "2px 8px", borderRadius: 10 }}>
-                {roleLabel(selected.role)}
+                {_roleLabel(selected.role)}
               </span>
               <span style={{ fontSize: 10, fontWeight: 600, color: selected.active !== false ? C.green : C.gray, background: selected.active !== false ? `${C.green}22` : `${C.gray}22`, padding: "2px 8px", borderRadius: 10 }}>
                 {selected.active !== false ? "● Ativo" : "○ Inativo"}
@@ -455,9 +444,9 @@ export default function MembersScreen({ userProfile }) {
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {ROLES.map(r => (
                   <button key={r.key} onClick={() => updateRole(selected, r.key)} style={{
-                    background: selected.role === r.key ? roleColor(r.key) : `${roleColor(r.key)}12`,
-                    color: selected.role === r.key ? "#fff" : roleColor(r.key),
-                    border: `1px solid ${roleColor(r.key)}44`, borderRadius: 8,
+                    background: selected.role === r.key ? _roleColor(r.key) : `${_roleColor(r.key)}12`,
+                    color: selected.role === r.key ? "#fff" : _roleColor(r.key),
+                    border: `1px solid ${_roleColor(r.key)}44`, borderRadius: 8,
                     padding: "6px 12px", fontSize: 12, fontWeight: 700
                   }}>{r.label}</button>
                 ))}
