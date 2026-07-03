@@ -5,7 +5,7 @@ import {
   WifiOff, RefreshCw, Star, Quote, Book
 } from "lucide-react";
 import {
-  BIBLE_BOOKS, fetchChapter, fetchRandomVerse, searchVerses, getOfflineFallback
+  BIBLE_BOOKS, fetchChapter, fetchRandomVerse, getOfflineFallback
 } from "../services/bibleService";
 
 const C = {
@@ -40,14 +40,14 @@ const VERSIONS = [
 ];
 
 const HIGHLIGHTS = [
-  { ref: "João 3:16",       abbrev: "jo", ch: 3,  v: 16 },
-  { ref: "Salmos 23",       abbrev: "sl", ch: 23, v: null },
-  { ref: "Filipenses 4:13", abbrev: "fp", ch: 4,  v: 13 },
-  { ref: "Romanos 8:28",    abbrev: "rm", ch: 8,  v: 28 },
-  { ref: "Provérbios 3:5",  abbrev: "pv", ch: 3,  v: 5  },
-  { ref: "Salmos 91",       abbrev: "sl", ch: 91, v: null },
-  { ref: "Isaías 40:31",    abbrev: "is", ch: 40, v: 31 },
-  { ref: "Jeremias 29:11",  abbrev: "jr", ch: 29, v: 11 },
+  { ref: "João 3:16",       abbrevApi: "john",        ch: 3,  v: 16 },
+  { ref: "Salmos 23",       abbrevApi: "psalms",      ch: 23, v: null },
+  { ref: "Filipenses 4:13", abbrevApi: "philippians", ch: 4,  v: 13 },
+  { ref: "Romanos 8:28",    abbrevApi: "romans",      ch: 8,  v: 28 },
+  { ref: "Provérbios 3:5",  abbrevApi: "proverbs",    ch: 3,  v: 5  },
+  { ref: "Salmos 91",       abbrevApi: "psalms",      ch: 91, v: null },
+  { ref: "Isaías 40:31",    abbrevApi: "isaiah",      ch: 40, v: 31 },
+  { ref: "Jeremias 29:11",  abbrevApi: "jeremiah",    ch: 29, v: 11 },
 ];
 
 function BackButton({ onClick, label, light }) {
@@ -66,7 +66,7 @@ function BackButton({ onClick, label, light }) {
 
 export default function BibleScreen() {
   const [view, setView]            = useState("home");
-  const [version, setVersion]      = useState("nvi");
+  const [version, setVersion]      = useState("almeida");
   const [selectedBook, setBook]    = useState(null);
   const [selectedChapter, setChap] = useState(1);
   const [verses, setVerses]        = useState([]);
@@ -76,6 +76,7 @@ export default function BibleScreen() {
   const [searchQuery, setSearch]   = useState("");
   const [searchResults, setSR]     = useState(null);
   const [searching, setSearching]  = useState(false);
+  // Nota: busca por palavra removida temporariamente
   const [randomVerse, setRandom]   = useState(null);
   const [testament, setTestament]  = useState("AT");
   const [highlight, setHighlight]  = useState(null);
@@ -106,7 +107,7 @@ export default function BibleScreen() {
   };
 
   const openHighlight = (h) => {
-    const book = BIBLE_BOOKS.find(b => b.abbrev === h.abbrev);
+    const book = BIBLE_BOOKS.find(b => b.abbrevApi === h.abbrevApi);
     if (book) openChapter(book, h.ch, h.v);
   };
 
@@ -151,12 +152,9 @@ export default function BibleScreen() {
           <div style={{ color: C.gold, fontSize: 12, fontWeight: 600, marginBottom: 12 }}>
             {VERSIONS.find(v => v.key === version)?.label}
           </div>
-          <select value={version} onChange={e => setVersion(e.target.value)} style={{
-            background: `${C.gold}22`, border: `1px solid ${C.gold}66`, color: "#fff",
-            borderRadius: 8, padding: "7px 12px", fontSize: 12, fontWeight: 600, width: "100%"
-          }}>
-            {VERSIONS.map(v => <option key={v.key} value={v.key} style={{ background: C.navy }}>{v.label}</option>)}
-          </select>
+          <div style={{ background: `${C.gold}22`, border: `1px solid ${C.gold}66`, borderRadius: 8, padding: "7px 12px", fontSize: 12, fontWeight: 600, color: "#fff" }}>
+            Almeida Revista e Corrigida
+          </div>
         </div>
       </div>
 
