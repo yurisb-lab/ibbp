@@ -503,73 +503,6 @@ function HomeScreen({ events, news, currentUser, onNavigate }) {
   );
 }
 
-/* ── Calendar Screen ─────────────────────────────────────── */
-function CalendarScreen({ events, setEvents, isLeader, show, addEvent:fbAdd, deleteEvent:fbDelete }) {
-  const [showForm,setShowForm]=useState(false);
-  const [filter,setFilter]=useState("todos");
-  const [form,setForm]=useState({title:"",date:"",time:"",location:"",category:"culto",description:"",restricted:false});
-  const visible=events.filter(e=>filter==="todos"||e.category===filter).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-  const save=async()=>{
-    if(!form.title.trim()||!form.date||!form.time){show("Preencha título, data e horário.");return;}
-    const ref=await fbAdd(form);
-    setEvents(prev=>[...prev,{...form,id:ref.id}].sort((a,b)=>String(a.date).localeCompare(String(b.date))));
-    setForm({title:"",date:"",time:"",location:"",category:"culto",description:"",restricted:false});
-    setShowForm(false);show("Evento adicionado!");
-  };
-  const del=async(id)=>{
-    if(!window.confirm("Excluir este evento?"))return;
-    await fbDelete(id);setEvents(prev=>prev.filter(e=>e.id!==id));show("Evento removido.");
-  };
-  return (
-    <div style={{padding:"18px 18px 0"}}>
-      <PageTitle title="Calendário" subtitle="Cultos, reuniões e eventos especiais"/>
-      <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,marginBottom:16}}>
-        {["todos","culto","oracao","ensino","jovens","especial",...(isLeader?["lideranca"]:[])].map(c=>(
-          <button key={c} onClick={()=>setFilter(c)} style={{background:filter===c?C.navy:"#fff",color:filter===c?C.ivory:C.ink,border:`1px solid ${filter===c?C.navy:C.ivoryDeep}`,borderRadius:20,padding:"7px 14px",fontSize:12,fontWeight:600,whiteSpace:"nowrap",flexShrink:0}}>
-            {c==="todos"?"Todos":(categoryMeta[c]?.label||c)}
-          </button>
-        ))}
-      </div>
-      {isLeader && (
-        <button onClick={()=>setShowForm(!showForm)} style={{width:"100%",background:showForm?C.ivoryDeep:`${C.gold}18`,border:`1.5px dashed ${C.gold}`,borderRadius:10,padding:12,fontSize:13,fontWeight:700,color:C.navy,marginBottom:16,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-          {showForm?<><X size={15}/>Cancelar</>:<><Plus size={15}/>Adicionar evento</>}
-        </button>
-      )}
-      {showForm && (
-        <div style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:16,marginBottom:18,display:"flex",flexDirection:"column",gap:10}}>
-          <FInput label="Título" icon={Calendar} value={form.title} onChange={v=>setForm({...form,title:v})} placeholder="Ex: Culto de Oração"/>
-          <div style={{display:"flex",gap:10}}>
-            <FInput label="Data" icon={Calendar} value={form.date} onChange={v=>setForm({...form,date:v})} placeholder="" type="date"/>
-            <FInput label="Horário" icon={Clock} value={form.time} onChange={v=>setForm({...form,time:v})} placeholder="" type="time"/>
-          </div>
-          <FInput label="Local" icon={MapPin} value={form.location} onChange={v=>setForm({...form,location:v})} placeholder="Ex: Templo Sede"/>
-          <label style={{fontSize:12.5,fontWeight:600,color:`${C.ink}aa`}}>Categoria
-            <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})} style={{width:"100%",padding:11,borderRadius:9,border:`1.5px solid ${C.ivoryDeep}`,marginTop:6,fontSize:14}}>
-              {Object.keys(categoryMeta).map(c=><option key={c} value={c}>{categoryMeta[c].label}</option>)}
-            </select>
-          </label>
-          <label style={{fontSize:12.5,fontWeight:600,color:`${C.ink}aa`}}>Descrição
-            <textarea value={form.description} onChange={e=>setForm({...form,description:e.target.value})} rows={2} style={{width:"100%",padding:11,borderRadius:9,border:`1.5px solid ${C.ivoryDeep}`,marginTop:6,fontSize:14,resize:"vertical"}}/>
-          </label>
-          <label style={{display:"flex",alignItems:"center",gap:8,fontSize:13,fontWeight:600}}>
-            <input type="checkbox" checked={form.restricted} onChange={e=>setForm({...form,restricted:e.target.checked})}/> Visível apenas para liderança
-          </label>
-          <button onClick={save} style={{background:C.navy,color:C.ivory,border:"none",borderRadius:9,padding:12,fontWeight:700,fontSize:14}}>Salvar evento</button>
-        </div>
-      )}
-      <div style={{display:"flex",flexDirection:"column",gap:10,paddingBottom:24}}>
-        {visible.length===0 && <p style={{fontSize:13,color:`${C.ink}77`,textAlign:"center",padding:"20px 0"}}>Nenhum evento encontrado.</p>}
-        {visible.map(e=>(
-          <div key={e.id} style={{position:"relative"}}>
-            <EventCard event={e}/>
-            {isLeader && <button onClick={()=>del(e.id)} style={{position:"absolute",top:8,right:8,background:`${C.terracotta}15`,border:"none",borderRadius:6,padding:"4px 8px",fontSize:11,color:C.terracotta,fontWeight:700}}><X size={12}/></button>}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ── Bible Screen ─────────────────────────────────────────── */
 function BibleScreen() {
   const [search,setSearch]=useState("");
@@ -995,3 +928,4 @@ function MoreScreen({ onNavigate, currentUser, isLeader, canMembers, hasDashboar
     </div>
   );
 }
+
