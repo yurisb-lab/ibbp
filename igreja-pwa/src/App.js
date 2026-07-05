@@ -4,7 +4,7 @@ import {
   Home, Calendar, BookOpen, Image as ImageIcon, Users, Heart,
   Bell, DollarSign, History, LogIn, LogOut, User, Lock,
   ChevronRight, Plus, X, Check, Shield, Star, Clock,
-  MapPin, Phone, Mail, Send, Menu
+  MapPin, Phone, Mail, Send, Menu, Printer
 } from "lucide-react";
 import { useAuth } from "./contexts/AuthContext";
 import { loginUser, logoutUser, registerUser } from "./services/authService";
@@ -21,6 +21,7 @@ import DashboardScreen from "./pages/DashboardScreen";
 import HistoryScreen from "./pages/HistoryScreen";
 import MinistriesScreen from "./pages/MinistriesScreen";
 import DonationsScreen from "./pages/DonationsScreen";
+import SignatureListScreen from "./pages/SignatureListScreen";
 
 const C = {
   navy:      "#6B0F0F",
@@ -76,9 +77,10 @@ function Vitral({ opacity=0.08, id="vt" }) {
 ════════════════════════════════════════════════════════════ */
 export default function App() {
   const {
-    currentUser, userProfile,
+    currentUser, userProfile, role,
     isAdmin, isLeader, canManageContent: canEdit,
     canViewMembers, canViewDashboard: hasDashboard,
+    canManageMembers,
   } = useAuth();
   const { show, Toast } = useToast();
   const [tab, setTab]       = useState("inicio");
@@ -125,6 +127,7 @@ export default function App() {
         {tab==="perfil"      && currentUser && <ProfileScreen userProfile={userProfile} show={show} onNavigate={setTab} isLeader={isLeader} isAdmin={isAdmin} onLogout={async()=>{await logoutUser();setTab("inicio");show("Sessão encerrada.");}}/>}
         {tab==="membros"     && canViewMembers && <MembersScreen userProfile={userProfile}/>}
         {tab==="dashboard"   && hasDashboard && <DashboardScreen userProfile={userProfile} onNavigate={setTab}/>}
+        {tab==="assinaturas"  && canManageMembers && <SignatureListScreen onBack={()=>setTab('membros')}/>}
         {tab==="mais"        && <MoreScreen onNavigate={setTab} currentUser={currentUser} isLeader={isLeader} canMembers={canViewMembers} hasDashboard={hasDashboard}/>}
       </main>
 
@@ -186,6 +189,7 @@ function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, can
     {key:"doacoes",label:"Dízimos e Ofertas",icon:DollarSign},
     ...(canMembers?[{key:"membros",label:"Lista de Membros",icon:Users}]:[]),
     ...(hasDashboard?[{key:"dashboard",label:"Dashboard Admin",icon:Shield}]:[]),
+    ...(canMembers?[{key:"assinaturas",label:"Lista de Assinaturas",icon:Printer}]:[]),
   ];
   return (
     <div style={{position:"fixed",inset:0,zIndex:200,display:"flex"}}>
@@ -553,6 +557,7 @@ function MoreScreen({ onNavigate, currentUser, isLeader, canMembers, hasDashboar
     {icon:DollarSign,label:"Dízimos e Ofertas",tab:"doacoes",desc:"Contribua com a igreja"},
     ...(currentUser?[{icon:User,label:"Meu Perfil",tab:"perfil",desc:"Seus dados e conta"}]:[]),
     ...(canMembers?[{icon:Users,label:"Lista de Membros",tab:"membros",desc:"Cadastro e gestão"}]:[]),
+    ...(canMembers?[{icon:Printer,label:"Lista de Assinaturas",tab:"assinaturas",desc:"Impressão de listas de presença"}]:[]),
     ...(hasDashboard?[{icon:Shield,label:"Dashboard Admin",tab:"dashboard",desc:"Painel administrativo"}]:[]),
   ];
   return (
