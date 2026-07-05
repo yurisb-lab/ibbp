@@ -24,6 +24,7 @@ import DonationsScreen from "./pages/DonationsScreen";
 import SignatureListScreen from "./pages/SignatureListScreen";
 import HomeScreen from "./pages/HomeScreen";
 import ManageHomeScreen from "./pages/ManageHomeScreen";
+import BulkImportScreen from "./pages/BulkImportScreen";
 
 const C = {
   navy:      "#6B0F0F",
@@ -118,6 +119,7 @@ export default function App() {
         {tab==="auth"        && !currentUser && <AuthScreen show={show} onSuccess={()=>setTab("inicio")}/>}
         {tab==="inicio"      && <HomeScreen currentUser={userProfile} onNavigate={setTab}/>}
         {tab==="gerenciar_home" && isAdmin && <ManageHomeScreen onBack={()=>setTab("dashboard")}/>}
+        {tab==="importar"        && isAdmin && <BulkImportScreen onBack={()=>setTab("membros")}/>}
         {tab==="calendario"  && <CalendarScreen userProfile={userProfile}/>}
         {tab==="biblia"      && <BibleScreen/>}
         {tab==="oracao"      && <PrayerScreen prayers={prayers} setPrayers={setPrayers} userProfile={userProfile} show={show} addPrayer={addPrayer} incrementPrayed={incrementPrayed}/>}
@@ -193,6 +195,7 @@ function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, can
     ...(canMembers?[{key:"membros",label:"Lista de Membros",icon:Users}]:[]),
     ...(hasDashboard?[{key:"dashboard",label:"Dashboard Admin",icon:Shield}]:[]),
     ...(isAdmin?[{key:"gerenciar_home",label:"Gerenciar Home",icon:Home}]:[]),
+    ...(isAdmin?[{key:"importar",label:"Importar Membros (temp)",icon:Users}]:[]),
     ...(canMembers?[{key:"assinaturas",label:"Lista de Assinaturas",icon:Printer}]:[]),
   ];
   return (
