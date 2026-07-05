@@ -175,15 +175,17 @@ export default function MembersScreen({ userProfile }) {
     setLoading(false);
   };
 
-  const filtered = members.filter(m => {
-    const matchSearch = !search || m.name?.toLowerCase().includes(search.toLowerCase()) ||
-      m.email?.toLowerCase().includes(search.toLowerCase()) ||
-      m.phone?.includes(search);
-    const matchRole = filterRole === "todos" || m.role === filterRole;
-    const matchActive = filterActive === "todos" ? true :
-      filterActive === "ativos" ? m.active !== false : m.active === false;
-    return matchSearch && matchRole && matchActive;
-  });
+  const filtered = members
+    .filter(m => {
+      const matchSearch = !search || m.name?.toLowerCase().includes(search.toLowerCase()) ||
+        m.email?.toLowerCase().includes(search.toLowerCase()) ||
+        m.phone?.includes(search);
+      const matchRole = filterRole === "todos" || m.role === filterRole;
+      const matchActive = filterActive === "todos" ? true :
+        filterActive === "ativos" ? m.active !== false : m.active === false;
+      return matchSearch && matchRole && matchActive;
+    })
+    .sort((a, b) => (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }));
 
   const stats = {
     total: members.length,
