@@ -22,6 +22,8 @@ import HistoryScreen from "./pages/HistoryScreen";
 import MinistriesScreen from "./pages/MinistriesScreen";
 import DonationsScreen from "./pages/DonationsScreen";
 import SignatureListScreen from "./pages/SignatureListScreen";
+import HomeScreen from "./pages/HomeScreen";
+import ManageHomeScreen from "./pages/ManageHomeScreen";
 
 const C = {
   navy:      "#6B0F0F",
@@ -114,7 +116,8 @@ export default function App() {
 
       <main style={{flex:1,paddingBottom:86,overflowX:"hidden"}}>
         {tab==="auth"        && !currentUser && <AuthScreen show={show} onSuccess={()=>setTab("inicio")}/>}
-        {tab==="inicio"      && <HomeScreen news={news} currentUser={userProfile} onNavigate={setTab}/>}
+        {tab==="inicio"      && <HomeScreen currentUser={userProfile} onNavigate={setTab}/>}
+        {tab==="gerenciar_home" && isAdmin && <ManageHomeScreen onBack={()=>setTab("dashboard")}/>}
         {tab==="calendario"  && <CalendarScreen userProfile={userProfile}/>}
         {tab==="biblia"      && <BibleScreen/>}
         {tab==="oracao"      && <PrayerScreen prayers={prayers} setPrayers={setPrayers} userProfile={userProfile} show={show} addPrayer={addPrayer} incrementPrayed={incrementPrayed}/>}
@@ -189,6 +192,7 @@ function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, can
     {key:"doacoes",label:"Dízimos e Ofertas",icon:DollarSign},
     ...(canMembers?[{key:"membros",label:"Lista de Membros",icon:Users}]:[]),
     ...(hasDashboard?[{key:"dashboard",label:"Dashboard Admin",icon:Shield}]:[]),
+    ...(isAdmin?[{key:"gerenciar_home",label:"Gerenciar Home",icon:Home}]:[]),
     ...(canMembers?[{key:"assinaturas",label:"Lista de Assinaturas",icon:Printer}]:[]),
   ];
   return (
@@ -314,58 +318,6 @@ function FInput({ label, icon:Icon, value, onChange, placeholder, type="text" })
           onBlur={e=>e.target.style.borderColor=C.ivoryDeep}/>
       </div>
     </label>
-  );
-}
-
-/* ── Home Screen ──────────────────────────────────────────── */
-function HomeScreen({ news, currentUser, onNavigate }) {
-  const pinnedNews = news.find(n=>n.pinned)||news[0];
-  return (
-    <div>
-      <div style={{background:`linear-gradient(160deg,${C.navy},${C.navyMid} 60%,${C.navyLight})`,padding:"26px 22px 30px",position:"relative",overflow:"hidden"}}>
-        <Vitral opacity={0.07} id="vt-hero"/>
-        <div style={{position:"relative"}}>
-          <div style={{fontSize:12.5,color:C.gold,fontWeight:600,letterSpacing:1}}>
-            {new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})}
-          </div>
-          <h1 className="serif" style={{color:C.ivory,fontSize:24,lineHeight:1.3,margin:"8px 0 6px"}}>
-            {currentUser?`Paz, ${currentUser.name?.split(" ")[0]}.`:"Bem-vindo à nossa família de fé."}
-          </h1>
-          <p style={{color:`${C.ivory}cc`,fontSize:13.5,margin:"0 0 18px",lineHeight:1.5}}>
-            "Porque onde estiverem dois ou três reunidos em meu nome, aí estou eu no meio deles." — Mt 18:20
-          </p>
-          {!currentUser && (
-            <button onClick={()=>onNavigate("auth")} style={{background:C.gold,color:C.navy,border:"none",borderRadius:9,padding:"11px 20px",fontSize:13.5,fontWeight:700,display:"flex",alignItems:"center",gap:8}}>
-              <LogIn size={16}/> Entrar na área de membros
-            </button>
-          )}
-        </div>
-      </div>
-      <div style={{padding:"20px 18px"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:26}}>
-          {[{icon:Calendar,label:"Agenda",tab:"calendario"},{icon:BookOpen,label:"Bíblia",tab:"biblia"},{icon:Heart,label:"Oração",tab:"oracao"},{icon:Star,label:"Devocional",tab:"devocional"}].map(a=>(
-            <button key={a.tab} onClick={()=>onNavigate(a.tab)} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:"14px 4px",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
-              <a.icon size={19} color={C.navy}/><span style={{fontSize:10.5,fontWeight:600,color:C.ink}}>{a.label}</span>
-            </button>
-          ))}
-        </div>
-        {pinnedNews && (
-          <div onClick={()=>onNavigate("avisos")} style={{background:`${C.terracotta}10`,border:`1px solid ${C.terracotta}33`,borderRadius:12,padding:16,marginBottom:24,cursor:"pointer"}}>
-            <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:6}}><Bell size={14} color={C.terracotta}/><span style={{fontSize:11,fontWeight:700,color:C.terracotta,letterSpacing:.5}}>AVISO FIXADO</span></div>
-            <div style={{fontWeight:700,fontSize:14.5,color:C.ink,marginBottom:4}}>{pinnedNews.title}</div>
-            <div style={{fontSize:13,color:`${C.ink}99`,lineHeight:1.5}}>{pinnedNews.body}</div>
-          </div>
-        )}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          {[{icon:History,label:"Nossa História",desc:"Desde 2008",tab:"historia",color:C.navy},{icon:Users,label:"Ministérios",desc:"Áreas de serviço",tab:"ministerios",color:C.terracotta},{icon:ImageIcon,label:"Galeria",desc:"Fotos e momentos",tab:"fotos",color:C.olive},{icon:DollarSign,label:"Dízimos",desc:"Contribua online",tab:"doacoes",color:C.gold}].map(c=>(
-            <button key={c.tab} onClick={()=>onNavigate(c.tab)} style={{background:"#fff",border:`1px solid ${C.ivoryDeep}`,borderRadius:12,padding:14,textAlign:"left",display:"flex",flexDirection:"column",gap:8}}>
-              <c.icon size={20} color={c.color}/>
-              <div><div style={{fontWeight:700,fontSize:13.5}}>{c.label}</div><div style={{fontSize:11.5,color:`${C.ink}88`}}>{c.desc}</div></div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }
 
