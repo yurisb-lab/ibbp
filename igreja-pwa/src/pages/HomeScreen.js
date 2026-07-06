@@ -33,54 +33,82 @@ export default function HomeScreen({ currentUser, onNavigate }) {
   const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
-    loadCards();
-    loadDynamicData();
+    loadAll();
   }, []);
+
+  const loadAll = async () => {
+    setLoading(true);
+    await Promise.all([loadCards(), loadDynamicData()]);
+    setLoading(false);
+  };
 
   const loadCards = async () => {
     try {
       const snap = await getDoc(doc(db, "settings", "home_cards"));
       if (snap.exists() && snap.data().cards?.length) {
-        setCards(snap.data().cards.filter(c => c.active).sort((a,b) => a.order - b.order));
+        const saved = snap.data().cards
+          .filter(c => c.active)
+          .sort((a, b) => a.order - b.order);
+        setCards(saved);
       } else {
-        // Usa defaults e salva no Firestore
-        const defaults = DEFAULT_CARDS;
-        await setDoc(doc(db, "settings", "home_cards"), { cards: defaults });
-        setCards(defaults.filter(c => c.active).sort((a,b) => a.order - b.order));
+        // Primeira vez — salva defaults e usa
+        await setDoc(doc(db, "settings", "home_cards"), { cards: DEFAULT_CARDS });
+        setCards(DEFAULT_CARDS.filter(c => c.active).sort((a, b) => a.order - b.order));
       }
-    } catch {
+    } catch (e) {
+      console.error("Erro ao carregar cards:", e);
       setCards(DEFAULT_CARDS.filter(c => c.active));
     }
-    setLoading(false);
   };
 
   const loadDynamicData = async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    let nextEvent = null;
+    let lastDevotional = null;
+
+    // Próximo culto — tenta com filtro de categoria, cai para qualquer evento
     try {
-      const today = new Date().toISOString().slice(0, 10);
-
-      // Próximo culto
-      const evSnap = await getDocs(
-        query(collection(db, "events"),
-          where("date", ">=", today),
-          where("category", "==", "culto"),
-          orderBy("date", "asc"), limit(1))
+      const q1 = query(
+        collection(db, "events"),
+        where("date", ">=", today),
+        orderBy("date", "asc"),
+        limit(5)
       );
-      const nextEvent = evSnap.empty ? null : { id: evSnap.docs[0].id, ...evSnap.docs[0].data() };
+      const snap = await getDocs(q1);
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Prefere culto, mas pega qualquer evento se não houver
+      nextEvent = all.find(e => e.category === "culto") || all[0] || null;
+    } catch (e) {
+      console.warn("Erro ao buscar próximo evento:", e);
+    }
 
-      // Devocional do dia
-      const dvSnap = await getDocs(
-        query(collection(db, "devotionals"), where("date", "==", today), limit(1))
+    // Devocional do dia
+    try {
+      const q2 = query(
+        collection(db, "devotionals"),
+        where("date", "==", today),
+        limit(1)
       );
-      const lastDevotional = dvSnap.empty ? null : { id: dvSnap.docs[0].id, ...dvSnap.docs[0].data() };
+      const snap2 = await getDocs(q2);
+      if (!snap2.empty) {
+        lastDevotional = { id: snap2.docs[0].id, ...snap2.docs[0].data() };
+      } else {
+        // Pega o mais recente
+        const q3 = query(collection(db, "devotionals"), orderBy("date", "desc"), limit(1));
+        const snap3 = await getDocs(q3);
+        if (!snap3.empty) lastDevotional = { id: snap3.docs[0].id, ...snap3.docs[0].data() };
+      }
+    } catch (e) {
+      console.warn("Erro ao buscar devocional:", e);
+    }
 
-      setDynamic({ nextEvent, lastDevotional });
-    } catch {}
+    setDynamic({ nextEvent, lastDevotional });
   };
 
+  const today = new Date().toISOString().slice(0, 10);
   const activeCards = cards.filter(c => {
-    // Verifica data de início/fim se configurado
-    if (c.startDate && new Date(c.startDate) > new Date()) return false;
-    if (c.endDate && new Date(c.endDate) < new Date()) return false;
+    if (c.startDate && c.startDate > today) return false;
+    if (c.endDate   && c.endDate   < today) return false;
     return true;
   });
 
@@ -120,6 +148,10 @@ export default function HomeScreen({ currentUser, onNavigate }) {
           <div style={{ textAlign: "center", padding: "30px 0", color: C.gray, fontSize: 13 }}>
             Carregando...
           </div>
+        ) : activeCards.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "30px 0", color: C.gray, fontSize: 13 }}>
+            Nenhum card ativo. Configure em Menu → Gerenciar Home.
+          </div>
         ) : (
           activeCards.map(card => {
             const Component = CARD_COMPONENTS[card.type];
@@ -127,7 +159,7 @@ export default function HomeScreen({ currentUser, onNavigate }) {
             return (
               <Component
                 key={card.id}
-                config={card.config}
+                config={card.config || {}}
                 data={dynamicData}
                 onNavigate={onNavigate}
               />
