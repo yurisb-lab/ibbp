@@ -148,7 +148,7 @@ export default function App() {
         })}
       </nav>
 
-      {menuOpen && <SideMenu userProfile={userProfile} onClose={()=>setMenuOpen(false)} onNavigate={t=>{setTab(t);setMenuOpen(false);}} isLeader={isLeader} canMembers={canViewMembers} hasDashboard={hasDashboard} currentUser={currentUser} onLogout={async()=>{await logoutUser();setTab("inicio");setMenuOpen(false);show("Sessão encerrada.");}}/>}
+      {menuOpen && <SideMenu userProfile={userProfile} onClose={()=>setMenuOpen(false)} onNavigate={t=>{setTab(t);setMenuOpen(false);}} isLeader={isLeader} isAdmin={isAdmin} canMembers={canViewMembers} hasDashboard={hasDashboard} currentUser={currentUser} onLogout={async()=>{await logoutUser();setTab("inicio");setMenuOpen(false);show("Sessão encerrada.");}}/>}
       {Toast}
     </div>
   );
@@ -180,7 +180,7 @@ function Header({ onMenu, onProfile, userProfile }) {
 }
 
 /* ── Side Menu ────────────────────────────────────────────── */
-function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, canMembers, hasDashboard, onLogout }) {
+function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, isAdmin, canMembers, hasDashboard, onLogout }) {
   const items = [
     {key:"inicio",label:"Início",icon:Home},
     {key:"calendario",label:"Calendário",icon:Calendar},
