@@ -39,8 +39,8 @@ const EMPTY_FORM = {
 // ── Gerar datas de eventos recorrentes (próximos 90 dias) ─────
 function generateRecurringDates(event, fromDate, days = 90) {
   const dates = [];
-  const from = new Date(fromDate);
-  const to = new Date(fromDate);
+  const from = new Date(fromDate + "T00:00:00");
+  const to = new Date(fromDate + "T00:00:00");
   to.setDate(to.getDate() + days);
 
   if (event.recurrenceType === "weekly") {
@@ -49,8 +49,11 @@ function generateRecurringDates(event, fromDate, days = 90) {
     // Avança para o próximo dia da semana correto
     while (current.getDay() !== targetDay) current.setDate(current.getDate() + 1);
     while (current <= to) {
-      dates.push(current.toISOString().slice(0, 10));
-      current = new Date(current);
+      // Usa data local para evitar problema de fuso horário
+      const y = current.getFullYear();
+      const m = String(current.getMonth()+1).padStart(2,'0');
+      const d = String(current.getDate()).padStart(2,'0');
+      dates.push(`${y}-${m}-${d}`);
       current.setDate(current.getDate() + 7);
     }
   } else if (event.recurrenceType === "monthly") {
@@ -65,7 +68,12 @@ function generateRecurringDates(event, fromDate, days = 90) {
       while (d.getDay() !== targetDay) d.setDate(d.getDate() + 1);
       count = 1;
       while (count < week) { d.setDate(d.getDate() + 7); count++; }
-      if (d >= from && d <= to) dates.push(d.toISOString().slice(0, 10));
+      if (d >= from && d <= to) {
+        const y = d.getFullYear();
+        const mo = String(d.getMonth()+1).padStart(2,'0');
+        const dy = String(d.getDate()).padStart(2,'0');
+        dates.push(`${y}-${mo}-${dy}`);
+      }
       current.setMonth(current.getMonth() + 1);
     }
   }
