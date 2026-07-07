@@ -27,6 +27,59 @@ function Vitral({ opacity = 0.07, id = "vt" }) {
   );
 }
 
+// Renderiza cards respeitando layout full/half
+function CardGrid({ cards, dynamicData, onNavigate }) {
+  const rows = [];
+  let i = 0;
+  while (i < cards.length) {
+    const card = cards[i];
+    const isHalf = card.width === "half";
+    const nextCard = cards[i + 1];
+    const nextIsHalf = nextCard?.width === "half";
+
+    if (isHalf && nextIsHalf) {
+      // Par de cards lado a lado
+      rows.push(
+        <div key={`row-${i}`} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+          <CardWrapper card={card} dynamicData={dynamicData} onNavigate={onNavigate} />
+          <CardWrapper card={nextCard} dynamicData={dynamicData} onNavigate={onNavigate} />
+        </div>
+      );
+      i += 2;
+    } else if (isHalf && !nextIsHalf) {
+      // Card half sozinho — ocupa linha inteira mesmo assim
+      rows.push(
+        <div key={`row-${i}`} style={{ marginBottom: 10 }}>
+          <CardWrapper card={card} dynamicData={dynamicData} onNavigate={onNavigate} />
+        </div>
+      );
+      i += 1;
+    } else {
+      // Card full — linha inteira
+      rows.push(
+        <div key={`row-${i}`} style={{ marginBottom: 10 }}>
+          <CardWrapper card={card} dynamicData={dynamicData} onNavigate={onNavigate} />
+        </div>
+      );
+      i += 1;
+    }
+  }
+  return <div>{rows}</div>;
+}
+
+function CardWrapper({ card, dynamicData, onNavigate }) {
+  const Component = CARD_COMPONENTS[card.type];
+  if (!Component) return null;
+  return (
+    <Component
+      config={card.config || {}}
+      data={dynamicData}
+      onNavigate={onNavigate}
+      compact={card.width === "half"}
+    />
+  );
+}
+
 export default function HomeScreen({ currentUser, onNavigate }) {
   const [cards, setCards]         = useState([]);
   const [dynamicData, setDynamic] = useState({});
@@ -143,7 +196,7 @@ export default function HomeScreen({ currentUser, onNavigate }) {
       </div>
 
       {/* Cards dinâmicos */}
-      <div style={{ padding: "18px 18px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ padding: "18px 18px 24px" }}>
         {loading ? (
           <div style={{ textAlign: "center", padding: "30px 0", color: C.gray, fontSize: 13 }}>
             Carregando...
@@ -153,18 +206,7 @@ export default function HomeScreen({ currentUser, onNavigate }) {
             Nenhum card ativo. Configure em Menu → Gerenciar Home.
           </div>
         ) : (
-          activeCards.map(card => {
-            const Component = CARD_COMPONENTS[card.type];
-            if (!Component) return null;
-            return (
-              <Component
-                key={card.id}
-                config={card.config || {}}
-                data={dynamicData}
-                onNavigate={onNavigate}
-              />
-            );
-          })
+          <CardGrid cards={activeCards} dynamicData={dynamicData} onNavigate={onNavigate} />
         )}
       </div>
     </div>

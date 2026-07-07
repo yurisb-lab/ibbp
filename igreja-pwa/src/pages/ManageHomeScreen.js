@@ -214,12 +214,19 @@ export default function ManageHomeScreen({ onBack }) {
                   </div>
                   <div style={{ fontSize: 11.5, color: C.gray }}>{meta.desc}</div>
                 </div>
-                <div style={{ display: "flex", gap: 4 }}>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                   <button onClick={() => moveUp(index)} style={{ background: C.ivoryDeep, border: "none", borderRadius: 6, padding: "5px 7px", color: C.ink }}>
                     <ChevronUp size={14} />
                   </button>
                   <button onClick={() => moveDown(index)} style={{ background: C.ivoryDeep, border: "none", borderRadius: 6, padding: "5px 7px", color: C.ink }}>
                     <ChevronDown size={14} />
+                  </button>
+                  {/* Toggle largura full/half */}
+                  <button
+                    onClick={() => setCards(prev => prev.map(c => c.id === card.id ? { ...c, width: c.width === "half" ? "full" : "half" } : c))}
+                    title={card.width === "half" ? "Meia largura (2 colunas)" : "Largura total"}
+                    style={{ background: card.width === "half" ? `${C.navy}18` : C.ivoryDeep, border: `1px solid ${card.width === "half" ? C.navy : "transparent"}`, borderRadius: 6, padding: "5px 7px", color: card.width === "half" ? C.navy : C.gray, fontSize: 11, fontWeight: 700, minWidth: 32 }}>
+                    {card.width === "half" ? "½" : "↔"}
                   </button>
                   <button onClick={() => toggleActive(card.id)} style={{ background: card.active ? `${C.green}15` : C.ivoryDeep, border: "none", borderRadius: 6, padding: "5px 7px", color: card.active ? C.green : C.gray }}>
                     {card.active ? <Eye size={14} /> : <EyeOff size={14} />}

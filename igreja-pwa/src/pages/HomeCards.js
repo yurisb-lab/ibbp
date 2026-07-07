@@ -32,7 +32,7 @@ function Vitral({ opacity = 0.07, id = "vt" }) {
 }
 
 // ── Aviso Fixo ────────────────────────────────────────────────
-export function CardAvisoFixo({ config, onNavigate }) {
+export function CardAvisoFixo({ config, onNavigate, compact }) {
   // Mostra se tiver título OU corpo
   const hasContent = config?.title || config?.body;
   if (!hasContent) return (
@@ -63,7 +63,7 @@ export function CardAvisoFixo({ config, onNavigate }) {
 }
 
 // ── Próximo Culto ─────────────────────────────────────────────
-export function CardProximoCulto({ data, config, onNavigate }) {
+export function CardProximoCulto({ data, config, onNavigate, compact }) {
   const event = data?.nextEvent;
   const formatDate = (iso) => {
     if (!iso) return "";
@@ -74,80 +74,82 @@ export function CardProximoCulto({ data, config, onNavigate }) {
   return (
     <div style={{
       background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 100%)`,
-      borderRadius: 14, padding: 18, position: "relative", overflow: "hidden", cursor: "pointer"
+      borderRadius: 14, padding: compact ? 12 : 18, position: "relative", overflow: "hidden", cursor: "pointer",
+      minHeight: compact ? 110 : "auto"
     }} onClick={() => onNavigate("calendario")}>
       <Vitral opacity={0.06} id="vt-culto" />
       <div style={{ position: "relative" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-          <Calendar size={14} color={C.gold} />
-          <span style={{ fontSize: 10.5, fontWeight: 700, color: C.gold, letterSpacing: 0.8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: compact ? 6 : 10 }}>
+          <Calendar size={compact ? 12 : 14} color={C.gold} />
+          <span style={{ fontSize: compact ? 9.5 : 10.5, fontWeight: 700, color: C.gold, letterSpacing: 0.8 }}>
             {config?.label || "PRÓXIMO CULTO"}
           </span>
         </div>
         {event ? (
           <>
-            <div className="serif" style={{ color: "#fff", fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{event.title}</div>
-            <div style={{ display: "flex", gap: 14, fontSize: 12.5, color: `${C.ivory}cc` }}>
+            <div className="serif" style={{ color: "#fff", fontSize: compact ? 14 : 18, fontWeight: 700, marginBottom: 4, lineHeight: 1.3 }}>{event.title}</div>
+            {!compact && <div style={{ display: "flex", gap: 14, fontSize: 12.5, color: `${C.ivory}cc` }}>
               <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} />{formatDate(event.date)}</span>
-            </div>
-            <div style={{ display: "flex", gap: 14, fontSize: 12.5, color: `${C.ivory}cc`, marginTop: 3 }}>
-              {event.time     && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} />{event.time}</span>}
-              {event.location && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={12} />{event.location}</span>}
+            </div>}
+            <div style={{ display: "flex", gap: compact ? 6 : 14, fontSize: compact ? 11 : 12.5, color: `${C.ivory}cc`, marginTop: 3, flexWrap: "wrap" }}>
+              {event.time     && <span style={{ display: "flex", alignItems: "center", gap: 3 }}><Clock size={11} />{event.time}</span>}
+              {!compact && event.location && <span style={{ display: "flex", alignItems: "center", gap: 3 }}><MapPin size={11} />{event.location}</span>}
             </div>
           </>
         ) : (
           <>
-            <div className="serif" style={{ color: "#fff", fontSize: 18, fontWeight: 700, marginBottom: 4 }}>
+            <div className="serif" style={{ color: "#fff", fontSize: compact ? 14 : 18, fontWeight: 700, marginBottom: 3, lineHeight: 1.3 }}>
               {config?.fallbackTitle || "Culto de Celebração"}
             </div>
-            <div style={{ fontSize: 12.5, color: `${C.ivory}cc` }}>
+            <div style={{ fontSize: compact ? 11 : 12.5, color: `${C.ivory}cc` }}>
               {config?.fallbackSubtitle || "Todo domingo às 18h"}
             </div>
           </>
         )}
-        <div style={{ marginTop: 12, fontSize: 12, fontWeight: 700, color: C.gold, display: "flex", alignItems: "center", gap: 4 }}>
+        {!compact && <div style={{ marginTop: 12, fontSize: 12, fontWeight: 700, color: C.gold, display: "flex", alignItems: "center", gap: 4 }}>
           Ver agenda completa <ChevronRight size={13} />
-        </div>
+        </div>}
       </div>
     </div>
   );
 }
 
 // ── Devocional do Dia ─────────────────────────────────────────
-export function CardUltimaMensagem({ data, config, onNavigate }) {
+export function CardUltimaMensagem({ data, config, onNavigate, compact }) {
   const devocional = data?.lastDevotional;
   return (
     <div style={{
       background: "#fff", border: `1px solid ${C.ivoryDeep}`,
-      borderRadius: 14, padding: 16, cursor: "pointer"
+      borderRadius: 14, padding: compact ? 12 : 16, cursor: "pointer",
+      minHeight: compact ? 110 : "auto"
     }} onClick={() => onNavigate("devocional")}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-        <BookOpen size={14} color={C.navy} />
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: C.navy, letterSpacing: 0.8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: compact ? 6 : 10 }}>
+        <BookOpen size={compact ? 12 : 14} color={C.navy} />
+        <span style={{ fontSize: compact ? 9.5 : 10.5, fontWeight: 700, color: C.navy, letterSpacing: 0.8 }}>
           {config?.label || "DEVOCIONAL DO DIA"}
         </span>
       </div>
       {devocional ? (
         <>
-          <div style={{ fontWeight: 700, fontSize: 15, color: C.ink, marginBottom: 4 }}>{devocional.title}</div>
-          <div style={{ fontSize: 12.5, color: C.gold, fontWeight: 600, marginBottom: 8 }}>{devocional.verse}</div>
-          <div style={{ fontSize: 13, color: `${C.ink}88`, lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+          <div style={{ fontWeight: 700, fontSize: compact ? 13 : 15, color: C.ink, marginBottom: 3, lineHeight: 1.3 }}>{devocional.title}</div>
+          <div style={{ fontSize: compact ? 11 : 12.5, color: C.gold, fontWeight: 600, marginBottom: compact ? 4 : 8 }}>{devocional.verse}</div>
+          {!compact && <div style={{ fontSize: 13, color: `${C.ink}88`, lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
             {devocional.text}
-          </div>
+          </div>}
         </>
       ) : (
         <>
-          <div style={{ fontWeight: 700, fontSize: 15, color: C.ink, marginBottom: 4 }}>
+          <div style={{ fontWeight: 700, fontSize: compact ? 13 : 15, color: C.ink, marginBottom: 3, lineHeight: 1.3 }}>
             {config?.fallbackTitle || "Devocional do dia"}
           </div>
-          <div style={{ fontSize: 13, color: `${C.ink}88` }}>
-            {config?.fallbackSubtitle || "Clique para ler a reflexão de hoje"}
+          <div style={{ fontSize: compact ? 11 : 13, color: `${C.ink}88` }}>
+            {config?.fallbackSubtitle || "Clique para ler"}
           </div>
         </>
       )}
-      <div style={{ marginTop: 10, fontSize: 12.5, fontWeight: 700, color: C.navy, display: "flex", alignItems: "center", gap: 4 }}>
+      {!compact && <div style={{ marginTop: 10, fontSize: 12.5, fontWeight: 700, color: C.navy, display: "flex", alignItems: "center", gap: 4 }}>
         Ler devocional <ChevronRight size={13} />
-      </div>
+      </div>}
     </div>
   );
 }
