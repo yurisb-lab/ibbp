@@ -6,8 +6,8 @@ import { db } from "../services/firebase";
 import { CARD_COMPONENTS, DEFAULT_CARDS } from "./HomeCards";
 
 const C = {
-  navy: "#6B0F0F", navyMid: "#8B1A1A", navyLight: "#A52020",
-  gold: "#C8A45A", ivory: "#FAF6F0", ivoryDeep: "#F0E8DC",
+  navy: "#8B1A1A", navyMid: "#6B1111", navyLight: "#4A0C0C",
+  gold: "#C9A030", ivory: "#FAFAF8", ivoryDeep: "#F2EFE9",
   ink: "#1A1008", gray: "#6B6560",
 };
 
@@ -116,23 +116,23 @@ export default function HomeScreen({ currentUser, onNavigate }) {
     <div>
       {/* Hero */}
       <div style={{
-        background: `linear-gradient(160deg,${C.navy},${C.navyMid} 60%,${C.navyLight})`,
-        padding: "26px 22px 30px", position: "relative", overflow: "hidden"
+        background: `linear-gradient(160deg, #FAFAF8 0%, #F2EFE9 100%)`,
+        padding: "24px 22px 28px", position: "relative", overflow: "hidden",
+        borderBottom: `3px solid ${C.gold}`
       }}>
-        <Vitral opacity={0.07} id="vt-hero" />
         <div style={{ position: "relative" }}>
-          <div style={{ fontSize: 12.5, color: C.gold, fontWeight: 600, letterSpacing: 1 }}>
+          <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 6 }}>
             {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
           </div>
-          <h1 className="serif" style={{ color: C.ivory, fontSize: 24, lineHeight: 1.3, margin: "8px 0 6px" }}>
+          <h1 className="serif" style={{ color: C.ink, fontSize: 23, lineHeight: 1.3, margin: "0 0 6px" }}>
             {currentUser ? `Paz, ${currentUser.name?.split(" ")[0]}.` : "Bem-vindo à nossa família de fé."}
           </h1>
-          <p style={{ color: `${C.ivory}cc`, fontSize: 13.5, margin: "0 0 18px", lineHeight: 1.5 }}>
+          <p style={{ color: `${C.ink}88`, fontSize: 13, margin: "0 0 16px", lineHeight: 1.6, fontStyle: "italic" }}>
             "Porque onde estiverem dois ou três reunidos em meu nome, aí estou eu no meio deles." — Mt 18:20
           </p>
           {!currentUser && (
             <button onClick={() => onNavigate("auth")} style={{
-              background: C.gold, color: C.navy, border: "none", borderRadius: 9,
+              background: C.navy, color: "#fff", border: "none", borderRadius: 9,
               padding: "11px 20px", fontSize: 13.5, fontWeight: 700,
               display: "flex", alignItems: "center", gap: 8
             }}>

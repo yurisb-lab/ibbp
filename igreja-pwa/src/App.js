@@ -26,12 +26,12 @@ import HomeScreen from "./pages/HomeScreen";
 import ManageHomeScreen from "./pages/ManageHomeScreen";
 
 const C = {
-  navy:      "#6B0F0F",
-  navyMid:   "#8B1A1A",
-  navyLight: "#A52020",
-  gold:      "#C8A45A",
-  ivory:     "#FAF6F0",
-  ivoryDeep: "#F0E8DC",
+  navy:      "#8B1A1A",
+  navyMid:   "#6B1111",
+  navyLight: "#4A0C0C",
+  gold:      "#C9A030",
+  ivory:     "#FAFAF8",
+  ivoryDeep: "#F2EFE9",
   terracotta:"#2D5A1B",
   olive:     "#3D7A25",
   ink:       "#1A1008",
@@ -103,7 +103,7 @@ export default function App() {
   const activeNav = ["inicio","calendario","biblia","oracao","mais"].includes(tab) ? tab : "mais";
 
   return (
-    <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:C.ivory,minHeight:"100vh",color:C.ink,display:"flex",flexDirection:"column",maxWidth:480,margin:"0 auto",position:"relative",boxShadow:"0 0 60px rgba(0,0,0,.08)"}}>
+    <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:"#FAFAF8",minHeight:"100vh",color:C.ink,display:"flex",flexDirection:"column",maxWidth:480,margin:"0 auto",position:"relative",boxShadow:"0 0 60px rgba(0,0,0,.08)"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -135,11 +135,11 @@ export default function App() {
         {tab==="mais"        && <MoreScreen onNavigate={setTab} currentUser={currentUser} isLeader={isLeader} canMembers={canViewMembers} hasDashboard={hasDashboard}/>}
       </main>
 
-      <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:C.navy,display:"flex",justifyContent:"space-around",padding:"10px 4px 12px",borderTop:`1px solid ${C.gold}33`,zIndex:100}}>
+      <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:"#FFFFFF",display:"flex",justifyContent:"space-around",padding:"10px 4px 14px",borderTop:`2px solid ${C.gold}`,zIndex:100,boxShadow:"0 -2px 12px rgba(0,0,0,0.06)"}}>
         {navItems.map(item=>{
           const active = activeNav===item.key;
           return (
-            <button key={item.key} onClick={()=>setTab(item.key)} style={{background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:3,color:active?C.gold:`${C.ivory}99`,padding:"2px 10px"}}>
+            <button key={item.key} onClick={()=>setTab(item.key)} style={{background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:3,color:active?C.navy:`${C.ink}66`,padding:"2px 10px"}}>
               <item.icon size={20} strokeWidth={active?2.4:1.8}/>
               <span style={{fontSize:10.5,fontWeight:active?700:500}}>{item.label}</span>
             </button>
@@ -156,21 +156,20 @@ export default function App() {
 /* ── Header ──────────────────────────────────────────────── */
 function Header({ onMenu, onProfile, userProfile }) {
   return (
-    <header style={{background:`linear-gradient(160deg,${C.navy} 0%,${C.navyMid} 60%,${C.navyLight} 100%)`,padding:"10px 14px 14px",position:"relative",overflow:"hidden"}}>
-      <Vitral opacity={0.06} id="vt-hd"/>
-      <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-        <button onClick={onMenu} aria-label="Menu" style={{background:"none",border:"none",padding:6,color:C.ivory,flexShrink:0}}><Menu size={22}/></button>
+    <header style={{background:"#FFFFFF",padding:"10px 14px 12px",position:"relative",borderBottom:`3px solid ${C.gold}`,boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+        <button onClick={onMenu} aria-label="Menu" style={{background:"none",border:"none",padding:6,color:C.navy,flexShrink:0}}><Menu size={22}/></button>
         <div style={{display:"flex",alignItems:"center",gap:10,flex:1,justifyContent:"center"}}>
-          <img src="/logo.png" alt="Logo IBBP" style={{width:46,height:46,objectFit:"contain",filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.4))"}}/>
+          <img src="/logo.png" alt="Logo IBBP" style={{width:42,height:42,objectFit:"contain"}}/>
           <div style={{textAlign:"left"}}>
-            <div className="serif" style={{color:C.gold,fontSize:9.5,letterSpacing:2,fontWeight:700,lineHeight:1}}>IGREJA BÍBLICA BATISTA</div>
-            <div className="serif" style={{color:C.ivory,fontSize:15,fontWeight:700,letterSpacing:0.3,lineHeight:1.2}}>DE PACATUBA</div>
-            <div style={{color:`${C.gold}bb`,fontSize:9,fontWeight:600,letterSpacing:1}}>Est. 2008</div>
+            <div className="serif" style={{color:C.navy,fontSize:9.5,letterSpacing:2,fontWeight:700,lineHeight:1}}>IGREJA BÍBLICA BATISTA</div>
+            <div className="serif" style={{color:C.ink,fontSize:15,fontWeight:700,letterSpacing:0.3,lineHeight:1.2}}>DE PACATUBA</div>
+            <div style={{color:C.gold,fontSize:9,fontWeight:600,letterSpacing:1}}>Est. 2008</div>
           </div>
         </div>
-        <button onClick={onProfile} aria-label="Perfil" style={{background:userProfile?`${C.gold}22`:"none",border:userProfile?`1px solid ${C.gold}66`:"none",borderRadius:20,padding:6,color:C.ivory,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+        <button onClick={onProfile} aria-label="Perfil" style={{background:userProfile?`${C.navy}12`:"none",border:userProfile?`1px solid ${C.navy}33`:"none",borderRadius:20,padding:6,color:C.navy,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
           {userProfile
-            ? <span className="serif" style={{color:C.gold,fontSize:13,fontWeight:700}}>{userProfile.name?.split(" ")[0][0]}{userProfile.name?.split(" ")[1]?.[0]||""}</span>
+            ? <span className="serif" style={{color:C.navy,fontSize:13,fontWeight:700}}>{userProfile.name?.split(" ")[0][0]}{userProfile.name?.split(" ")[1]?.[0]||""}</span>
             : <User size={18}/>}
         </button>
       </div>
@@ -199,46 +198,45 @@ function SideMenu({ userProfile, currentUser, onClose, onNavigate, isLeader, isA
   return (
     <div style={{position:"fixed",inset:0,zIndex:200,display:"flex"}}>
       <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(50,5,5,.55)"}}/>
-      <div style={{position:"relative",width:"82%",maxWidth:340,height:"100%",background:C.navy,boxShadow:"4px 0 30px rgba(0,0,0,.3)",display:"flex",flexDirection:"column",overflow:"hidden"}}>
-        <Vitral opacity={0.06} id="vt-mn"/>
-        <div style={{position:"relative",padding:"20px 20px 16px",borderBottom:`1px solid ${C.gold}33`}}>
-          <button onClick={onClose} style={{position:"absolute",top:16,right:16,background:"none",border:"none",color:C.ivory}}><X size={20}/></button>
+      <div style={{position:"relative",width:"82%",maxWidth:340,height:"100%",background:"#FFFFFF",boxShadow:"4px 0 24px rgba(0,0,0,0.12)",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        <div style={{padding:"20px 20px 16px",borderBottom:`2px solid ${C.gold}`,background:"#FAFAF8"}}>
+          <button onClick={onClose} style={{position:"absolute",top:16,right:16,background:"none",border:"none",color:C.ink}}><X size={20}/></button>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
-            <img src="/logo.png" alt="Logo IBBP" style={{width:44,height:44,objectFit:"contain",filter:"drop-shadow(0 2px 4px rgba(0,0,0,0.5))"}}/>
+            <img src="/logo.png" alt="Logo IBBP" style={{width:44,height:44,objectFit:"contain"}}/>
             <div>
-              <div className="serif" style={{color:C.gold,fontSize:9.5,letterSpacing:2,fontWeight:700,lineHeight:1}}>IGREJA BÍBLICA BATISTA</div>
-              <div className="serif" style={{color:C.ivory,fontSize:16,fontWeight:700,lineHeight:1.2}}>de Pacatuba</div>
-              <div style={{color:`${C.gold}bb`,fontSize:9,fontWeight:600,letterSpacing:1}}>Est. 2008</div>
+              <div className="serif" style={{color:C.navy,fontSize:9.5,letterSpacing:2,fontWeight:700,lineHeight:1}}>IGREJA BÍBLICA BATISTA</div>
+              <div className="serif" style={{color:C.ink,fontSize:16,fontWeight:700,lineHeight:1.2}}>de Pacatuba</div>
+              <div style={{color:C.gold,fontSize:9,fontWeight:600,letterSpacing:1}}>Est. 2008</div>
             </div>
           </div>
           {userProfile ? (
             <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <div style={{width:38,height:38,borderRadius:19,background:`${C.gold}22`,border:`1px solid ${C.gold}66`,display:"flex",alignItems:"center",justifyContent:"center",color:C.gold,fontWeight:700,fontSize:14}} className="serif">
+              <div style={{width:38,height:38,borderRadius:19,background:`${C.navy}12`,border:`1px solid ${C.navy}33`,display:"flex",alignItems:"center",justifyContent:"center",color:C.navy,fontWeight:700,fontSize:14}} className="serif">
                 {userProfile.name?.split(" ")[0][0]}{userProfile.name?.split(" ")[1]?.[0]||""}
               </div>
               <div>
-                <div style={{color:C.ivory,fontSize:14,fontWeight:600}}>{userProfile.name}</div>
-                <div style={{color:C.gold,fontSize:11,fontWeight:600}}>{roleLabel(userProfile.role)}</div>
+                <div style={{color:C.ink,fontSize:14,fontWeight:600}}>{userProfile.name}</div>
+                <div style={{color:C.navy,fontSize:11,fontWeight:600}}>{roleLabel(userProfile.role)}</div>
               </div>
             </div>
           ) : (
-            <button onClick={()=>onNavigate("auth")} style={{background:C.gold,color:C.navy,border:"none",borderRadius:8,padding:"9px 16px",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
+            <button onClick={()=>onNavigate("auth")} style={{background:C.navy,color:"#fff",border:"none",borderRadius:8,padding:"9px 16px",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
               <LogIn size={15}/> Entrar / Cadastrar
             </button>
           )}
         </div>
-        <div style={{position:"relative",flex:1,overflowY:"auto",padding:"10px 8px"}}>
+        <div style={{flex:1,overflowY:"auto",padding:"8px 8px"}}>
           {items.map(item=>(
-            <button key={item.key} onClick={()=>onNavigate(item.key)} style={{width:"100%",background:"none",border:"none",color:C.ivory,textAlign:"left",padding:"12px 12px",display:"flex",alignItems:"center",gap:14,borderRadius:8,fontSize:14.5}}
-              onMouseEnter={e=>e.currentTarget.style.background=`${C.gold}15`}
+            <button key={item.key} onClick={()=>onNavigate(item.key)} style={{width:"100%",background:"none",border:"none",color:C.ink,textAlign:"left",padding:"11px 12px",display:"flex",alignItems:"center",gap:14,borderRadius:8,fontSize:14}}
+              onMouseEnter={e=>e.currentTarget.style.background=`${C.navy}08`}
               onMouseLeave={e=>e.currentTarget.style.background="none"}>
-              <item.icon size={18} color={C.gold}/>{item.label}
+              <item.icon size={18} color={C.navy}/>{item.label}
             </button>
           ))}
         </div>
         {currentUser && (
-          <div style={{position:"relative",padding:14,borderTop:`1px solid ${C.gold}33`}}>
-            <button onClick={onLogout} style={{width:"100%",background:"none",border:`1px solid ${C.terracotta}88`,color:C.terracotta,borderRadius:8,padding:"10px",fontSize:13.5,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+          <div style={{padding:14,borderTop:`1px solid ${C.navy}15`}}>
+            <button onClick={onLogout} style={{width:"100%",background:"none",border:`1px solid ${C.navy}33`,color:C.navy,borderRadius:8,padding:"10px",fontSize:13.5,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <LogOut size={15}/> Sair da conta
             </button>
           </div>

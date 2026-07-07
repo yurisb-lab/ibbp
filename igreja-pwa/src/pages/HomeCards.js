@@ -3,9 +3,16 @@ import React from "react";
 import { Bell, Calendar, BookOpen, FileText, Heart, Star, ChevronRight, Clock, MapPin } from "lucide-react";
 
 const C = {
-  navy: "#6B0F0F", navyMid: "#8B1A1A", gold: "#C8A45A",
-  ivory: "#FAF6F0", ivoryDeep: "#F0E8DC", green: "#2D5A1B",
-  ink: "#1A1008", gray: "#6B6560",
+  navy:      "#8B1A1A",   // bordô — apenas acentos, botões, ícones ativos
+  navyMid:   "#6B1111",   // bordô escuro — gradientes sutis
+  gold:      "#C9A030",   // dourado
+  goldSoft:  "#F0D98A",   // dourado claro
+  ivory:     "#FAFAF8",   // fundo principal (branco quente)
+  ivoryDeep: "#F2EFE9",   // fundo cards / separadores
+  green:     "#2D5A1B",   // verde (ramo da logo)
+  ink:       "#1A1008",   // texto principal
+  gray:      "#6B6560",   // texto secundário
+  white:     "#FFFFFF",   // cards e superfícies
 };
 
 function Vitral({ opacity = 0.07, id = "vt" }) {

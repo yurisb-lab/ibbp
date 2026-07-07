@@ -9,11 +9,11 @@ import {
 } from "../services/bibleService";
 
 const C = {
-  navy:      "#6B0F0F",
-  navyMid:   "#8B1A1A",
-  gold:      "#C8A45A",
-  ivory:     "#FAF6F0",
-  ivoryDeep: "#F0E8DC",
+  navy:      "#8B1A1A",
+  navyMid:   "#6B1111",
+  gold:      "#C9A030",
+  ivory:     "#FAFAF8",
+  ivoryDeep: "#F2EFE9",
   green:     "#2D5A1B",
   ink:       "#1A1008",
 };

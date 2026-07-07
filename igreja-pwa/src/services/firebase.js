@@ -1,19 +1,21 @@
-﻿import { initializeApp } from "firebase/app";
+// src/services/firebase.js
+import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  apiKey:            "AIzaSyAEjZ3YTgLjGay84v3rjak1gH0a8i6qn-s",
+  authDomain:        "siteibbp.firebaseapp.com",
+  projectId:         "siteibbp",
+  storageBucket:     "siteibbp.firebasestorage.app",
+  messagingSenderId: "1098929410467",
+  appId:             "1:1098929410467:web:02c83d15b4818712be8a16",
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+export const auth    = getAuth(app);
+export const db      = getFirestore(app);
 export const storage = getStorage(app);
 export default app;

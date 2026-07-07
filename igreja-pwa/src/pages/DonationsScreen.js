@@ -5,8 +5,8 @@ import { getChurchInfo, saveChurchInfo } from "../services/contentService";
 import { canManageContent } from "../services/permissions";
 
 const C = {
-  navy: "#6B0F0F", navyMid: "#8B1A1A", gold: "#C8A45A",
-  ivory: "#FAF6F0", ivoryDeep: "#F0E8DC", ink: "#1A1008", gray: "#6B6560",
+  navy: "#8B1A1A", navyMid: "#6B1111", gold: "#C9A030",
+  ivory: "#FAFAF8", ivoryDeep: "#F2EFE9", ink: "#1A1008", gray: "#6B6560",
 };
 
 function Vitral({ opacity = 0.07, id = "vt" }) {
