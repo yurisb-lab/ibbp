@@ -163,20 +163,11 @@ Responda APENAS com um JSON válido, sem markdown, sem explicações, neste form
 ]`;
 
     try {
-      // Chama a API da Anthropic com header de acesso direto pelo browser
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      // Proxy via Cloudflare Worker (evita CORS)
+      const response = await fetch("https://iaibbp.yurisb.workers.dev", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 2000,
-          messages: [{ role: "user", content: prompt }],
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, apiKey }),
       });
 
       const data = await response.json();
