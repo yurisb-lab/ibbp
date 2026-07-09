@@ -170,8 +170,32 @@ Responda APENAS com um JSON válido, sem markdown, sem explicações, neste form
         body: JSON.stringify({ prompt, apiKey }),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log("Worker resposta raw:", responseText);
+      console.log("Status:", response.status);
+
+      if (!responseText || responseText.trim() === "") {
+        showToast("Worker retornou resposta vazia. Verifique o Cloudflare.");
+        setGenerating(false);
+        return;
+      }
+
+      const data = JSON.parse(responseText);
+      console.log("Data:", JSON.stringify(data).slice(0, 200));
+
+      if (data.error) {
+        showToast("Erro da IA: " + data.error);
+        setGenerating(false);
+        return;
+      }
+
       const raw = data.content?.[0]?.text || "";
+      if (!raw) {
+        showToast("IA não retornou texto. Verifique a chave da API.");
+        setGenerating(false);
+        return;
+      }
+
       const clean = raw.replace(/```json|```/g, "").trim();
       const parsed = JSON.parse(clean);
 
@@ -183,8 +207,8 @@ Responda APENAS com um JSON válido, sem markdown, sem explicações, neste form
         showToast("Erro no formato retornado pela IA. Tente novamente.");
       }
     } catch (e) {
-      console.error(e);
-      showToast("Erro ao chamar a IA. Verifique a chave e a conexão.");
+      console.error("Erro completo:", e);
+      showToast("Erro: " + e.message);
     }
     setGenerating(false);
   };
